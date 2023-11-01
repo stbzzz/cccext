@@ -2,13 +2,15 @@
     "compilerOptions": {
         "target": "ES2017",
         "module": "CommonJS",
-        "outDir": "ext/dist",
-        "rootDir": "ext/src",
+        "outDir": "ext/dist/",
         "strict": true,
         "moduleResolution": "node",
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
-    }
+    },
+    "include": [
+        "ext/src/**/*.ts"
+    ]
 }

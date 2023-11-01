@@ -1,0 +1,12 @@
+{
+    "mode": "dev",
+    "version": "1.0.0",
+    "servers": {
+        "dev": {
+            "ws": "ws://192.168.3.113:8822/fight",
+            "http": "http://192.168.3.113:8820"
+        },
+        "debug": {},
+        "release": {}
+    }
+}
