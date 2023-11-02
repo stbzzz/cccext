@@ -3,10 +3,13 @@ import { Singleton } from "./Singleton";
 export class BaseData {
     public clear() { }
 
-    public constructor(mgr: DataMgr, name: string, priority: number) {
-        this._mgr = mgr;
+    public constructor(name: string, priority: number) {
         this._name = name;
         this._priority = priority;
+    }
+
+    public init(mgr: DataMgr) {
+        this._mgr = mgr;
     }
 
     public get mgr(): DataMgr {
@@ -29,18 +32,37 @@ class DataMgr extends Singleton {
         return this._dataMap.get(key) as T;
     }
 
+    /**
+     * 优先级越高，越先执行
+     * @param data
+     */
     public addData<T extends BaseData>(data: T) {
-
+        data.init(this);
+        let priority = data.priority;
+        this._dataMap.set(data.name, data);
+        let len = this._dataArr.length;
+        let position = 0;
+        for (let i = len - 1; i >= 0; --i) {
+            let _priority = this._dataArr[i].priority;
+            if (priority <= _priority) {
+                position = i + 1;
+                break;
+            }
+        }
+        this._dataArr.splice(position, 0, data);
     }
 
     /**
      * 处理网络消息
-     * @param prefix 
-     * @param funcname 
-     * @param msg 
+     * @param prefix
+     * @param funcname
+     * @param msg
      */
     public processNetworkMsg(prefix: string, funcname: string, ...msg: any[]) {
-
+        for (let data of this._dataArr) {
+            let func = data[`${prefix}_${funcname}`];
+            if (func) func.apply(data, [...msg]);
+        }
     }
 
     //private

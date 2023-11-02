@@ -1,4 +1,5 @@
-import { Asset, AssetManager, JsonAsset, Prefab, Sprite, SpriteFrame, __private, assetManager, error, isValid, sp } from "cc";
+import { Asset, AssetManager, JsonAsset, Node, Prefab, Sprite, SpriteFrame, Widget, __private, assetManager, error, find, isValid, sp } from "cc";
+import { frm } from "../Defines";
 import { PreloadRes } from "../PreloadRes";
 import { Cfg } from "./CfgMgr";
 import { Singleton } from "./Singleton";
@@ -129,11 +130,45 @@ class ResMgr extends Singleton {
         });
     }
 
+    /**
+     * UI 跟节点
+     * @param rootName
+     * @returns
+     */
+    public getRoot(rootName: string): Node {
+        let root = this._layerCache[rootName];
+        if (isValid(root)) {
+            return root;
+        }
+        this.checkDefaultLayers();
+        return this._layerCache[rootName]!;
+    }
+
+    private checkDefaultLayers() {
+        let canvas = find('Canvas')!;
+        for (let name of frm.Layers) {
+            if (!canvas.getChildByName(name)) {
+                let node = new Node(name);
+                canvas.addChild(node);
+                let comp = node.addComponent(Widget);
+                comp.isAlignLeft = comp.isAlignRight = comp.isAlignTop = comp.isAlignBottom = true;
+                comp.left = comp.right = comp.top = comp.bottom = 0;
+                comp.alignMode = 2;
+                comp.enabled = true;
+                this._layerCache[name] = node;
+            }
+        }
+    }
+
+    public get preloaded(): PreloadRes {
+        if (this._preloadRes) return this._preloadRes;
+        return this._preloadRes = find('__app__')!.getComponent(PreloadRes)!;
+    }
+
     //private
     private _preloadRes: PreloadRes = null!;
+    private _layerCache: { [key: string]: Node } = {};
     private _loadedAssets = new Map<string, ILoadedAsset>();
-
-
 }
 
 export const Res = ResMgr.getInstance() as ResMgr;
