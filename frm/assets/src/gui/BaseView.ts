@@ -15,26 +15,39 @@ export class BaseView extends Foundation {
     /**
      * 当 View 显示的时候调用
      *
-     * 默认行为：无动画直接显示，与 `type` 值无关
-     * @param type
+     * 子类未实现 onShow ，则无动画，直接显示。
+     * 
+     * 系统默认情况下，使用 `showType=0` 执行进场动画。
+     * 
+     * @example 
+     * ```
+     * public onShow(type: number):boolean {
+     *      switch (type) {
+     *          case 0: {
+     *              // 系统默认调用的动画实现
+     *              return true;
+     *          }
+     *          case 1: {
+     *              // 可实现由 showType = 1 指定的动画
+     *              return true;
+     *          }
+     *      }
+     *      return false;
+     * }
+     * ```
+     * @returns 是否使用特定动画
      */
-    public onShow(type: number) {
-        this.setVisible(true);
+    public onShow(type: number): boolean {
+        return false;
     }
 
     /**
      * 当 View 隐藏的时候调用
      *
-     *
-     * 默认行为：无动画直接隐藏，与 `type` 值无关
-     * @param type
-     * @param completeDestroy
+     * @returns 是否使用特定动画
      */
     public onHide(type: number, completeDestroy = false) {
-        this.setVisible(false);
-        if (completeDestroy) {
-            this.node.destroy();
-        }
+        return false;
     }
 
     //private

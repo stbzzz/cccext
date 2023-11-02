@@ -24,7 +24,7 @@ export class BlankCloseable extends Component {
 
     private onTouchEnd(touch: Touch) {
         if (!this.checkInside(touch.getUILocation())) {
-            this._closeable.onClickClose();
+            this._closeable.onClickClose(null, '0-0');
         }
     }
 
