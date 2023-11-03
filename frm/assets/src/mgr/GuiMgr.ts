@@ -34,6 +34,19 @@ class GuiMgr extends Singleton {
     }
 
     /**
+     * 清楚 View 的引用
+     */
+    public clear() {
+        this._viewLevel = 0;
+        this._viewDatas = [];
+        this._viewMask = null;
+        this._requestMask = null;
+        this._loadingMask = null;
+        this._isFlying = false;
+        this._flyMsgArr = [];
+    }
+
+    /**
      * 进入场景
      * @param name 场景名称
      * @param onProgressCb 进度回调。(传值:走完进度进入场景 | 不传值:直接进入场景)
@@ -267,9 +280,9 @@ class GuiMgr extends Singleton {
                 let root = Res.getRoot(frm.LayerMap.Request);
                 root.addChild(this._requestMask);
             }
-            this._requestMask.active = true;
+            this._requestMask!.active = true;
         } else if (isValid(this._requestMask)) {
-            this._requestMask.active = false;
+            this._requestMask!.active = false;
         }
     }
 
@@ -369,9 +382,9 @@ class GuiMgr extends Singleton {
                 }
                 this._viewMask.setSiblingIndex(index);
             }
-            this._viewMask.active = true;
+            this._viewMask!.active = true;
         } else if (isValid(this._viewMask)) {
-            this._viewMask.active = false;
+            this._viewMask!.active = false;
         }
 
         let level = topViewData.level;
@@ -420,9 +433,9 @@ class GuiMgr extends Singleton {
                 let root = Res.getRoot(frm.LayerMap.LoadRes);
                 root.addChild(this._loadingMask);
             }
-            this._loadingMask.active = true;
+            this._loadingMask!.active = true;
         } else if (isValid(this._loadingMask)) {
-            this._loadingMask.active = false;
+            this._loadingMask!.active = false;
         }
     }
 
@@ -466,9 +479,9 @@ class GuiMgr extends Singleton {
     //private
     private _viewLevel = 0;
     private _viewDatas: IViewData[] = [];
-    private _viewMask: Node = null!;
-    private _requestMask: Node = null!;
-    private _loadingMask: Node = null!;
+    private _viewMask: Node | null = null;
+    private _requestMask: Node | null = null;
+    private _loadingMask: Node | null = null;
     private _isFlying: boolean = false;
     private _flyMsgArr: { msg: string, colorHex: string }[] = [];
 }

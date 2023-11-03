@@ -83,6 +83,25 @@ class ResMgr extends Singleton {
     }
 
     /**
+     * 释放当前场景手动加载且标记为 `autorelease=true` 的所有资源
+     */
+    public releaseManualLoaded() {
+        for (let k in this._loadedAssets) {
+            let loadedAsset = this._loadedAssets.get(k);
+            if (loadedAsset) {
+                if (loadedAsset.autorelease) {
+                    if (isValid(loadedAsset.asset)) {
+                        loadedAsset.asset.decRef();
+                    }
+                    this._loadedAssets.delete(k);
+                }
+            } else {
+                this._loadedAssets.delete(k);
+            }
+        }
+    }
+
+    /**
      * 加载资源
      * @param bundlename 分包名
      * @param path 资源路径
