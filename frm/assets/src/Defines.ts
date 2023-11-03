@@ -1,3 +1,5 @@
+import { Node } from "cc";
+
 export namespace frm {
 
 
@@ -37,6 +39,114 @@ export namespace frm {
         servers: { [mode: string]: IServerConfig };
     }
 
+
+    /////////////////////////////////////////////
+    // ListView
+    /////////////////////////////////////////////
+    /**
+     * 列表包装类
+     */
+    export class ListData<T> {
+        constructor(index: number, data: T, extra?: any) {
+            this._extra = extra;
+            this._origin = data;
+            this._index = index;
+        }
+
+        public get extra(): any { return this._extra; }
+        public get index(): number { return this._index; }
+
+        public set origin(d: T) { this._origin = d; }
+        public get origin(): T { return this._origin; }
+
+        public set selected(b: boolean) { this._selected = b; }
+        public get selected(): boolean { return this._selected; }
+
+        //private
+        private _origin: T;
+        private _index = 0;
+        private _extra: any;
+        private _selected = false;
+    }
+
+    /**
+     * 列表包装函数
+     * 排序、从对象变为列表，应当在外部操作
+     * @param arrSource 源数据
+     * @param condFunc 过滤函数
+     * @param extraFunc 将原数据添加额外数据
+     * @returns
+     */
+    export function WrapListData<T>(arrSource: T[], condFunc?: (data: T) => boolean, extraFunc?: (data: T) => any): ListData<T>[] {
+        if (!arrSource) return [];
+        let list: ListData<T>[] = [];
+        for (let v of arrSource) {
+            let pass = true;
+            if (condFunc) {
+                pass = condFunc(v);
+            }
+            if (!pass) continue;
+
+            let index = list.length;
+            let extra = void 0;
+            if (extraFunc) {
+                extra = extraFunc(v);
+            }
+            let data = new ListData(index, v, extra);
+            list.push(data);
+        }
+        return list;
+    }
+
+    /**
+     *
+     * @param arrSource 源数据
+     * @param childCount 孩子数量
+     * @param condFunc 过滤函数
+     * @param extraFunc 将原数据添加额外数据
+     * @returns
+     */
+    export function WrapListDataGroup<T>(arrSource: T[], childCount: number, condFunc?: (data: T) => boolean, extraFunc?: (data: T) => any): ListData<T>[][] {
+        if (!arrSource) return [];
+
+        let list: ListData<T>[][] = [];
+
+        let row = 0;
+        let rank = 0;
+        for (let i = 0, l = arrSource.length; i < l; ++i) {
+            let v = arrSource[i];
+
+            let pass = true;
+            if (condFunc) {
+                pass = condFunc(v);
+            }
+            if (!pass) continue;
+
+            if (!list[row]) {
+                list[row] = [];
+            }
+            if (list[row].length == childCount) {
+                row++;
+            }
+            if (!list[row]) {
+                list[row] = [];
+            }
+
+            let extra = void 0;
+            if (extraFunc) {
+                extra = extraFunc(v);
+            }
+            let data = new ListData(rank++, v, extra);
+            list[row].push(data);
+        }
+
+        return list;
+    }
+    export type ListViewItemClick<T> = (node: Node, data: ListData<T>, cmd?: string) => void;
+
+    /////////////////////////////////////////////
+    // 网络请求
+    /////////////////////////////////////////////
     /**
      * 内部报错码
      */

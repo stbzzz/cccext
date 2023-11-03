@@ -11,7 +11,16 @@ export class PreloadRes extends Component {
     public gameConfigJson: JsonAsset = null!;
 
     @property(Prefab)
+    public toastPrefab: Prefab = null!;
+
+    @property(Prefab)
     public viewMaskPrefab: Prefab = null!;
+
+    @property(Prefab)
+    public requestMaskPrefab: Prefab = null!;
+
+    @property(Prefab)
+    public loadingMaskPrefab: Prefab = null!;
 
 
     protected onLoad(): void {

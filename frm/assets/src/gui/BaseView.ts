@@ -16,10 +16,10 @@ export class BaseView extends Foundation {
      * 当 View 显示的时候调用
      *
      * 子类未实现 onShow ，则无动画，直接显示。
-     * 
+     *
      * 系统默认情况下，使用 `showType=0` 执行进场动画。
-     * 
-     * @example 
+     *
+     * @example
      * ```
      * public onShow(type: number):boolean {
      *      switch (type) {
@@ -35,18 +35,21 @@ export class BaseView extends Foundation {
      *      return false;
      * }
      * ```
+     *
+     * @param isCreate 来自于创建
      * @returns 是否使用特定动画
      */
-    public onShow(type: number): boolean {
+    public onShow(type: number, isCreate: boolean): boolean {
         return false;
     }
 
     /**
      * 当 View 隐藏的时候调用
      *
+     * @param isDestroy 来自于销毁; 子类需要根据 `isDestroy` 来决定是否执行 `node.destroy()`
      * @returns 是否使用特定动画
      */
-    public onHide(type: number, completeDestroy = false) {
+    public onHide(type: number, isDestroy: boolean): boolean {
         return false;
     }
 

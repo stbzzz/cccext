@@ -1,4 +1,4 @@
-export default class Heap<T> {
+export class Heap<T> {
     public constructor(cmp: (a: T, b: T) => number) {
         this._cmp = cmp;
         this._nodes = [];

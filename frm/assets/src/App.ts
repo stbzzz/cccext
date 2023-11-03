@@ -2,7 +2,7 @@ import { Component, _decorator } from "cc";
 import { frm } from "./Defines";
 import { PreloadRes } from "./PreloadRes";
 
-const { requireComponent, property } = _decorator;
+const { requireComponent } = _decorator;
 
 @requireComponent(PreloadRes)
 export class App extends Component {

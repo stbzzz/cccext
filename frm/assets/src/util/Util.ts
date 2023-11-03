@@ -5,7 +5,7 @@ type MixinObj = { [k: string]: string | number };
 const Mathround = Math.round;
 const Mathfloor = Math.floor;
 
-export default class Util {
+export class Util {
 
 
     /**

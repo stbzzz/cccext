@@ -1,6 +1,6 @@
 import { log, sys } from "cc";
 import { frm } from "../Defines";
-import Util from "../util/Util";
+import { Util } from "../util/Util";
 import { Data } from "./DataMgr";
 import { Gui } from "./GuiMgr";
 import { Singleton } from "./Singleton";
@@ -263,5 +263,4 @@ class HttpMgr extends Singleton {
     private _requestCache: Request[] = [];
 
 }
-const Http = HttpMgr.getInstance() as HttpMgr
-export default Http;
+export const Http = HttpMgr.getInstance() as HttpMgr;

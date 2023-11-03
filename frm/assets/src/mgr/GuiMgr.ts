@@ -1,8 +1,10 @@
-import { Node, Prefab, __private, director, error, instantiate, isValid, log, warn } from "cc";
+import { Node, Prefab, UIOpacity, __private, director, error, instantiate, isValid, log, tween, v3, warn } from "cc";
 import { frm } from "../Defines";
 import { BaseScene } from "../gui/BaseScene";
 import { BaseView } from "../gui/BaseView";
+import { Toast } from "../gui/Toast";
 import { Closeable } from "../gui/comp/Closeable";
+import { Pool } from "./PoolMgr";
 import { Res } from "./ResMgr";
 import { Singleton } from "./Singleton";
 
@@ -15,7 +17,20 @@ interface IViewData {
 
 class GuiMgr extends Singleton {
 
+    /**
+     * 飞字
+     * @param msg
+     * @param colorHex
+     * @returns
+     */
     public toast(msg: string, colorHex = '#FFFFFF') {
+        let index = this._flyMsgArr.findIndex(v => {
+            return v.msg == msg;
+        });
+        if (index !== -1) return;
+        this._flyMsgArr.push({ msg, colorHex });
+        if (this._isFlying) return;
+        this._checkFlyMsg();
     }
 
     /**
@@ -52,6 +67,18 @@ class GuiMgr extends Singleton {
         return director.getScene()!.getChildByName('Canvas')!.getComponent(classConstructor)!;
     }
 
+    /**
+     * XXXView 压栈
+     * @param bundlename 分包名
+     * @param path XXXView 预制体路径
+     * @param data 携带参数
+     * @param stacks 是否堆叠显示
+     * @param showMaskWhenTop 是否显示遮罩
+     * @param showType XXXView 入场回调
+     * @param hideType XXXView 出场回调
+     * @param suffix uuid 后缀
+     * @returns
+     */
     public pushView(bundlename: string, path: string, data?: any, stacks = false, showMaskWhenTop = false, showType = 0, hideType = 0, suffix = '') {
         const pathArr = path.split('/');
         const len = pathArr.length;
@@ -76,15 +103,21 @@ class GuiMgr extends Singleton {
                 this.removeViewData(uuid);
                 return;
             }
-            try {
-                this.createView(prefab!, data, showType, hideType, suffix);
-            } catch (e) {
-                this.setLoadingMask(false);
-                this.removeViewData(uuid);
-            }
+            this.createView(prefab!, data, showType, hideType, suffix);
         });
     }
 
+    /**
+     * XXXView 压栈
+     * @param prefab 预加载的预制体对象
+     * @param data 携带参数
+     * @param stacks 是否堆叠显示
+     * @param showMaskWhenTop 是否显示遮罩
+     * @param showType XXXView 入场回调
+     * @param hideType XXXView 出场回调
+     * @param suffix uuid 后缀
+     * @returns
+     */
     public pushPreloadView(prefab: Prefab, data?: any, stacks = false, showMaskWhenTop = false, showType = 0, hideType = 0, suffix = '') {
         const uuid = suffix != '' ? `${prefab.name}_${suffix}` : prefab.name;
         for (const viewData of this._viewDatas) {
@@ -143,8 +176,8 @@ class GuiMgr extends Singleton {
 
     /**
      * 弹出最上层 View level 对应的所有 View
-     * @param showType 
-     * @param hideType 
+     * @param showType
+     * @param hideType
      */
     public popViewIfTopLevel(showType = 0, hideType = 0) {
         const len = this._viewDatas.length;
@@ -165,7 +198,7 @@ class GuiMgr extends Singleton {
      * @returns
      */
     public removeView(uuid: string, showType = 0, hideType = 0) {
-        log('uuid->', uuid);
+        log(uuid);
         const len = this._viewDatas.length;
         if (len === 0) return;
         let removeIndex = len;
@@ -184,7 +217,7 @@ class GuiMgr extends Singleton {
         if (removeIndex >= len) return;
 
         // 弹出
-        for (let i = len - 1; i >= 0; --i) {
+        for (let i = len - 2; i >= 0; --i) {
             if (removeIndex == i) {
                 const viewData = this._viewDatas[i];
                 this._viewDatas.splice(i, 1);
@@ -192,7 +225,7 @@ class GuiMgr extends Singleton {
                 if (isValid(view) && (!view.isVisible() || !view.onHide(hideType, true))) {
                     view.node.destroy();
                 }
-                this.checkLevel(showType, hideType);
+                this.checkLevel(false, showType, hideType);
                 break;
             }
         }
@@ -205,6 +238,7 @@ class GuiMgr extends Singleton {
      * @param msg
      */
     public processNetworkMsg(prefix: string, funcname: string, ...msg: any[]) {
+        // views
         for (let i = this._viewDatas.length - 1; i >= 0; --i) {
             const viewData = this._viewDatas[i];
             if (isValid(viewData.view)) {
@@ -213,14 +247,30 @@ class GuiMgr extends Singleton {
                 if (func) func.apply(comp, [...msg]);
             }
         }
+        // scene
+        let scene = director.getScene()!.getChildByName('Canvas')!.getComponent(BaseScene);
+        log(scene);
+        if (scene) {
+            const comp = scene as any;
+            const func = comp[`${prefix}_${funcname}`];
+            if (func) func.apply(comp, [...msg]);
+        }
     }
 
+    /**
+     * 请求遮罩
+     */
     public setRequestMask(visible: boolean) {
-
-    }
-
-    public setLoadingMask(visible: boolean) {
-
+        if (visible) {
+            if (!isValid(this._requestMask)) {
+                this._requestMask = instantiate(Res.preloaded.requestMaskPrefab);
+                let root = Res.getRoot(frm.LayerMap.Request);
+                root.addChild(this._requestMask);
+            }
+            this._requestMask.active = true;
+        } else if (isValid(this._requestMask)) {
+            this._requestMask.active = false;
+        }
     }
 
     /**
@@ -240,7 +290,24 @@ class GuiMgr extends Singleton {
         }
     }
 
+    private randomDelay() {
+        return new Promise((res, _) => {
+            setTimeout(() => {
+                res(void 0);
+            }, Math.random() * 3000);
+        });
+    }
+
     private async createView(prefab: Prefab, data: any, showType: number, hideType: number, suffix: string) {
+        // await this.randomDelay();
+        log(suffix);
+
+        const uuid = suffix != '' ? `${prefab.name}_${suffix}` : prefab.name;
+        // 检测是否在栈里
+        if (this._viewDatas.findIndex(v => v.uuid == uuid) === -1) {
+            return;
+        }
+
         let root = Res.getRoot(frm.LayerMap.View);
         let node = instantiate(prefab),
             closeableComp = node.getComponent(Closeable)!,
@@ -251,7 +318,6 @@ class GuiMgr extends Singleton {
         viewComp.setVisible(false);
         root.addChild(node);
 
-        const uuid = suffix != '' ? `${prefab.name}_${suffix}` : prefab.name;
         // bind view
         for (let i = this._viewDatas.length - 1; i >= 0; --i) {
             const viewData = this._viewDatas[i];
@@ -261,7 +327,7 @@ class GuiMgr extends Singleton {
             }
         }
         // show status
-        this.checkLevel(showType, hideType);
+        this.checkLevel(true, showType, hideType);
     }
 
     private _popViews(startIndex: number, showType: number, hideType: number) {
@@ -280,15 +346,15 @@ class GuiMgr extends Singleton {
             } else break;
         }
 
-        this.checkLevel(showType, hideType);
+        this.checkLevel(false, showType, hideType);
     }
 
-    private checkLevel(showType: number, hideType: number) {
+    private checkLevel(fromCreate: boolean, showType: number, hideType: number) {
         let topIndex = this._viewDatas.length - 1;
         if (topIndex < 0) return;
         const topViewData = this._viewDatas[topIndex];
         const topView = topViewData.view!;
-        if (isValid(topView) && !topView.isVisible() && !topView.onShow(showType)) {
+        if (isValid(topView) && !topView.isVisible() && !topView.onShow(showType, fromCreate)) {
             topView.setVisible(true);
         }
         // mask
@@ -314,7 +380,7 @@ class GuiMgr extends Singleton {
             const view = viewData.view!;
             if (level != viewData.level) {
                 level = viewData.level;
-                if (isValid(view) && !view.isVisible() && !view.onShow(showType)) {
+                if (isValid(view) && !view.isVisible() && !view.onShow(showType, false)) {
                     view.setVisible(true);
                 }
             } else {
@@ -327,7 +393,7 @@ class GuiMgr extends Singleton {
         // 排序
         let siblingIndex = 0;
         this._viewDatas.forEach(v => {
-            if (isValid(v.view) && v.view!.node.active) {
+            if (isValid(v.view)) {
                 v.view!.node.setSiblingIndex(siblingIndex++);
             }
         });
@@ -347,10 +413,64 @@ class GuiMgr extends Singleton {
         return this._viewLevel;
     }
 
+    private setLoadingMask(visible: boolean) {
+        if (visible) {
+            if (!isValid(this._loadingMask)) {
+                this._loadingMask = instantiate(Res.preloaded.loadingMaskPrefab);
+                let root = Res.getRoot(frm.LayerMap.LoadRes);
+                root.addChild(this._loadingMask);
+            }
+            this._loadingMask.active = true;
+        } else if (isValid(this._loadingMask)) {
+            this._loadingMask.active = false;
+        }
+    }
+
+    private _checkFlyMsg() {
+        let msgData = this._flyMsgArr.shift();
+        if (msgData) {
+            this._isFlying = true;
+            let node = Pool.getNode(Res.preloaded.toastPrefab, Res.getRoot(frm.LayerMap.Toast));
+            let comp = node.getComponent(Toast)!;
+            comp.setText(msgData.msg, msgData.colorHex);
+            node.setScale(0.2, 0.2);
+            node.setPosition(0, 0);
+            node.getComponent(UIOpacity)!.opacity = 255;
+            let t = tween;
+            t(node)
+                .parallel(
+                    t().by(0.3, { position: v3(0, 50) }),
+                    t().to(0.3, { scale: v3(1, 1) })
+                )
+                .by(0.5, { position: v3(0, 50) })
+                .call(() => {
+                    this._checkFlyMsg();
+                })
+                .delay(0.2)
+                .parallel(
+                    t().call(() => {
+                        tween(node.getComponent(UIOpacity)).to(0.5, { opacity: 0 }).start();
+                    }),
+                    t().by(0.5, { position: v3(0, 60) })
+                )
+                .call(() => {
+                    Pool.putNode(node);
+                })
+                .start()
+        }
+        else {
+            this._isFlying = false;
+        }
+    }
+
     //private
     private _viewLevel = 0;
     private _viewDatas: IViewData[] = [];
     private _viewMask: Node = null!;
+    private _requestMask: Node = null!;
+    private _loadingMask: Node = null!;
+    private _isFlying: boolean = false;
+    private _flyMsgArr: { msg: string, colorHex: string }[] = [];
 }
 
 
