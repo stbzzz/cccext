@@ -1,6 +1,7 @@
-import { Asset, AssetManager, JsonAsset, Node, Prefab, Sprite, SpriteFrame, Widget, __private, assetManager, error, find, isValid, sp } from "cc";
+import { Asset, AssetManager, JsonAsset, Node, Prefab, Sprite, SpriteFrame, Widget, __private, assetManager, director, error, find, isValid, sp } from "cc";
 import { frm } from "../Defines";
 import { PreloadRes } from "../PreloadRes";
+import { BaseScene } from "../gui/BaseScene";
 import { Cfg } from "./CfgMgr";
 import { Singleton } from "./Singleton";
 
@@ -11,6 +12,54 @@ interface ILoadedAsset {
 }
 
 class ResMgr extends Singleton {
+
+    /**
+     * 获取当前场景
+     *
+     * XXXScene 继承自 BaseScene，且挂载在 Canvas 下
+     * @returns
+     */
+    public getScene<T extends BaseScene>(classConstructor: __private._types_globals__Constructor<T> | __private._types_globals__AbstractedConstructor<T>): T {
+        return director.getScene()!.getChildByName('Canvas')!.getComponent(classConstructor)!;
+    }
+
+    /**
+     * 加载场景
+     * @param bundlename
+     * @param scenename
+     * @param onProgressCb
+     */
+    public loadScene(bundlename: string, scenename: string, onProgressCb?: (progress: number) => void) {
+        this.loadBundle(bundlename)
+            .then(bundle => {
+                if (onProgressCb) {
+                    let progress = 0;
+                    bundle.preloadScene(scenename, (c, t) => {
+                        let p = c / t;
+                        if (p > progress) {
+                            progress = p;
+                            onProgressCb(progress);
+                        }
+                    }, err => {
+                        if (err) {
+                            error(err);
+                            return;
+                        }
+                        director.loadScene(scenename);
+                    });
+                } else {
+                    bundle.preloadScene(scenename, err => {
+                        if (err) {
+                            error(err);
+                            return;
+                        }
+                        director.loadScene(scenename);
+                    });
+                }
+            }).catch(err => {
+                error(err);
+            });
+    }
 
     /**
      * 设置精灵图像
