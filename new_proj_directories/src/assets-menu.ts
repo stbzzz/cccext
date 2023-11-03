@@ -1,7 +1,7 @@
 export function onCreateMenu(assetInfo: any) {
     return [
         {
-            label: '创建项目基础目录',
+            label: '项目基础目录',
             click() {
                 /**
                  * bundles/
