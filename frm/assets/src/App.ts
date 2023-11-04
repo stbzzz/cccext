@@ -10,10 +10,9 @@ export class App extends Component {
     protected onLoad(): void {
         const preloadRes = this.getComponent(PreloadRes)!;
         const gameConfig = preloadRes.gameConfigJson.json as frm.IGameConfig;
-        const serverConfig = gameConfig.servers[gameConfig.mode];
-        this.onCreate(serverConfig.ws, serverConfig.http);
+        this.onCreate(gameConfig);
     }
 
-    protected onCreate(wsUrl?: string, httpUrl?: string) { }
+    protected onCreate(gameConfig: frm.IGameConfig) { }
 
 }

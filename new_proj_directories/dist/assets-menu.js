@@ -66,16 +66,20 @@ export class SplashScene extends BaseScene {
 
 }
                 `);
-                Editor.Message.send('asset-db', 'create-asset', 'db://assets/scripts/MyApp.ts', `import { App } from "../../extensions/frm/assets/src/App";
-
-import { _decorator } from "cc";
-
-const { ccclass } = _decorator;
-
-@ccclass('MyApp')
-export class MyApp extends App {
-    protected onCreate(wsUrl?: string, httpUrl?: string) { }
-}
+                Editor.Message.send('asset-db', 'create-asset', 'db://assets/scripts/MyApp.ts', `import { _decorator } from "cc";
+                import { App } from "../../extensions/frm/assets/src/App";
+                import { frm } from "../../extensions/frm/assets/src/Defines";
+                import { Data } from "../../extensions/frm/assets/src/mgr/DataMgr";
+                import { AuthData } from "./data/AuthData";
+                
+                const { ccclass } = _decorator;
+                
+                @ccclass('MyApp')
+                export class MyApp extends App {
+                    protected onCreate(gameConfig: frm.IGameConfig) {
+                        Data.addData(new AuthData('auth', 100));
+                    }
+                }
                 `);
             },
         }

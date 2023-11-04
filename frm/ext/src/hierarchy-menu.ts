@@ -77,5 +77,11 @@ export function onCreateMenu(assetInfo: any) {
                 }
             ]
         },
+        {
+            label: '__app__',
+            click() {
+                createNode('__app__');
+            },
+        },
     ];
 };
