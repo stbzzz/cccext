@@ -1,36 +1,9 @@
+import { Trigger } from "../util/Trigger";
 import { Singleton } from "./Singleton";
-
-class Timer {
-
-    public constructor(interval: number) {
-        this.reset(interval);
-    }
-
-    public reset(interval: number) {
-        this._elapsedTime = 0;
-        this._interval = interval;
-    }
-
-    public trigger(dt: number): boolean {
-        if (this._interval < 0) return false;
-
-        this._elapsedTime += dt;
-
-        if (this._elapsedTime >= this._interval) {
-            this._elapsedTime -= this._interval;
-            return true;
-        }
-        return false;
-    }
-
-    //private
-    private _interval = -1;
-    private _elapsedTime = 0;
-}
 
 interface ITimerData {
     id: number;
-    timer: Timer;
+    trigger: Trigger;
     priority: number;
     removeWhenTrigger: boolean;
     callback: () => void;
@@ -47,8 +20,8 @@ class TimerMgr extends Singleton {
      */
     public delay(callback: () => void, delta: number, priority = 0): number {
         let id = ++this._timerId;
-        let timer = this.getTimer(delta);
-        this.insertTimerData({ id, timer, priority, callback, removeWhenTrigger: true });
+        let trigger = this.getTrigger(delta);
+        this.insertTimerData({ id, trigger, priority, callback, removeWhenTrigger: true });
         return id;
     }
 
@@ -62,8 +35,8 @@ class TimerMgr extends Singleton {
      */
     public interval(callback: () => void, delta: number, priority = 0): number {
         let id = ++this._timerId;
-        let timer = this.getTimer(delta);
-        this.insertTimerData({ id, timer, priority, callback, removeWhenTrigger: false });
+        let trigger = this.getTrigger(delta);
+        this.insertTimerData({ id, trigger, priority, callback, removeWhenTrigger: false });
         return id;
     }
 
@@ -73,7 +46,7 @@ class TimerMgr extends Singleton {
             if (td.id == id) {
                 this._timerArr.splice(i, 1);
                 this._timerMap.delete(id);
-                this._pool.push(td.timer);
+                this._pool.push(td.trigger);
                 return true;
             }
         }
@@ -85,7 +58,7 @@ class TimerMgr extends Singleton {
         if (len > 0) {
             for (let i = len - 1; i >= 0; --i) {
                 let td = this._timerArr[i],
-                    timer = td.timer;
+                    timer = td.trigger;
                 if (timer.trigger(dt)) {
                     if (td.removeWhenTrigger) {
                         this._timerArr.splice(i, 1);
@@ -98,13 +71,13 @@ class TimerMgr extends Singleton {
         }
     }
     ////
-    private getTimer(delta: number): Timer {
+    private getTrigger(delta: number): Trigger {
         if (this._pool.length > 0) {
             let t = this._pool.shift()!;
             t.reset(delta);
             return t;
         }
-        return new Timer(delta);
+        return new Trigger(delta);
     }
 
     // 按 priority 从大到小排列
@@ -125,7 +98,7 @@ class TimerMgr extends Singleton {
     private _timerId = 0;
     private _timerArr = new Array<ITimerData>();
     private _timerMap = new Map<number, ITimerData>();
-    private _pool: Timer[] = [];
+    private _pool: Trigger[] = [];
 }
 
-export const Timers = TimerMgr.getInstance() as TimerMgr;
+export const Timer = TimerMgr.getInstance() as TimerMgr;

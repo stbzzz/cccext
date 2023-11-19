@@ -1,6 +1,6 @@
 import { Component, JsonAsset, Prefab, _decorator, director, profiler } from "cc";
 import { frm } from "./Defines";
-import { Timers } from "./mgr/TimerMgr";
+import { Timer } from "./mgr/TimerMgr";
 
 const { ccclass, property } = _decorator;
 
@@ -37,7 +37,7 @@ export class PreloadRes extends Component {
     }
 
     protected update(dt: number): void {
-        Timers.updateLogic(dt);
+        Timer.updateLogic(dt);
     }
 
 }

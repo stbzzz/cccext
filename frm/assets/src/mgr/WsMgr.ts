@@ -1,6 +1,6 @@
 import { frm } from "../Defines";
 import { Singleton } from "./Singleton";
-import { Timers } from "./TimerMgr";
+import { Timer } from "./TimerMgr";
 
 
 export type ConnectCallback = (code: number, msg: string) => void;
@@ -108,7 +108,7 @@ class WsMgr extends Singleton {
         this._autoReconnectCount--;
 
         // 超时检查
-        Timers.delay(() => {
+        Timer.delay(() => {
             if (!this._connected) this.tryReconnect();
         }, AutoReconnectInterval, 9999);
         this.connect(this._connectCb);
