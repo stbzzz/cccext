@@ -19,6 +19,9 @@ export class Trigger {
 
     public isTriggered(): boolean { return this._triggered; }
     public resetTriggered() { this._triggered = false; }
+    public setTriggeredWhenEnter() {
+        this._elapsedTime = this._interval;
+    }
 
     public trigger(dt: number): boolean {
         if (this._interval < 0) return false;
