@@ -74,7 +74,7 @@ class TimerMgr extends Singleton {
     private getTrigger(delta: number): Trigger {
         if (this._pool.length > 0) {
             let t = this._pool.shift()!;
-            t.reset(delta);
+            t.reuse(delta);
             return t;
         }
         return new Trigger(delta);
