@@ -7,15 +7,27 @@ export class Trigger {
         return this._elapsedTime;
     }
 
+    /**
+     * 根据新的参数重用触发器对象
+     * @param interval 
+     * @param execWhenStart 
+     * @param autoResetElapsedTime 
+     */
     public reuse(interval: number, execWhenStart = false, autoResetElapsedTime = true) {
         this._interval = interval;
         this._autoResetElapsedTime = autoResetElapsedTime;
 
         if (execWhenStart) {
             this._elapsedTime = interval;
+        } else {
+            this._elapsedTime = 0;
         }
     }
 
+    /**
+     * 重置触发器流逝时间
+     * @param retainElapsed 保留interval区间内的流逝时间
+     */
     public reset(retainElapsed = false) {
         if (retainElapsed) {
             const interval = this._interval;
@@ -26,6 +38,16 @@ export class Trigger {
         } else {
             this._elapsedTime = 0;
         }
+    }
+
+    /**
+     * 处置触发器间隔时间
+     * @param interval 
+     * @param retainElapsed 
+     */
+    public resetInterval(interval: number, retainElapsed = false) {
+        this._interval = interval;
+        this.reset(retainElapsed);
     }
 
     public trigger(dt: number): boolean {
