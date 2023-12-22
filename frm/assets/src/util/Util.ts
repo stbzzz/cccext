@@ -32,6 +32,7 @@ export class Util {
      */
     public static isPassProbability(probability: number, base = 100): boolean {
         if (probability <= 0) return false;
+        if (probability >= 100) return true;
         return Math.random() * base < probability;
     }
 
