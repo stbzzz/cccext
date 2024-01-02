@@ -18,7 +18,7 @@ export class Foundation extends Component {
     /**
      * 添加事件
      *
-     * 应当在 #onEnable 中添加，当 #onDisable 时，会统一移除
+     * 应当在 #onLoad 中添加，当 #onDestroy 时，会统一移除
      * @param cb 回调，当 `cb` 返回 `true` 表明调度完成，会删除时钟。
      * @param interval 时间间隔(s)
      */
@@ -52,7 +52,7 @@ export class Foundation extends Component {
     /**
      * 添加事件
      *
-     * 应当在 #onEnable 中添加，当 #onDisable 时，会统一移除
+     * 应当在 #onLoad 中添加，当 #onDestroy 时，会统一移除
      * @param type 事件类型
      * @param callback 回调方法
      */
@@ -61,9 +61,9 @@ export class Foundation extends Component {
     }
 
     /**
-     * 继承自 Component，子类覆写需要调用 `super.onDisable();`
+     * 继承自 Component，子类覆写需要调用 `super.onDestroy();`
      */
-    protected onDisable() {
+    protected onDestroy() {
         Dispatcher.gui.targetOff(this);
         // remove clocks
         for (let clock of this._clocks) {
