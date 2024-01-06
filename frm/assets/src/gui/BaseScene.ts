@@ -12,7 +12,7 @@ export class BaseScene extends Foundation {
      */
     protected onDestroy(): void {
         Gui.clear();
-        Res.releaseManualLoaded();
+        Res.clear();
     }
 
 }

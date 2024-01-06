@@ -1,4 +1,4 @@
-import { Asset, AssetManager, JsonAsset, Node, Prefab, Sprite, SpriteFrame, Widget, __private, assetManager, director, error, find, isValid, sp } from "cc";
+import { Asset, AssetManager, JsonAsset, Node, Prefab, Sprite, SpriteFrame, Widget, __private, assetManager, director, error, find, isValid, sp, warn } from "cc";
 import { frm } from "../Defines";
 import { PreloadRes } from "../PreloadRes";
 import { BaseScene } from "../gui/BaseScene";
@@ -13,6 +13,11 @@ interface ILoadedAsset {
 
 class ResMgr extends Singleton {
 
+    public clear() {
+        this._layerCache = {};
+        this.releaseManualLoaded();
+    }
+
     /**
      * 获取当前场景
      *
@@ -25,11 +30,18 @@ class ResMgr extends Singleton {
 
     /**
      * 加载场景
-     * @param bundlename
-     * @param scenename
+     * @param path
      * @param onProgressCb
      */
-    public loadScene(bundlename: string, scenename: string, onProgressCb?: (progress: number) => void) {
+    public loadScene(path: string, onProgressCb?: (progress: number) => void) {
+        const pathArr = path.split('/');
+        const len = pathArr.length;
+        if (len < 2) {
+            warn('[Gui.addView] invalid path: ', path);
+            return;
+        }
+        const bundlename = pathArr[0];
+        const scenename = pathArr[len - 1];
         this.loadBundle(bundlename)
             .then(bundle => {
                 if (onProgressCb) {
@@ -134,7 +146,7 @@ class ResMgr extends Singleton {
     /**
      * 释放当前场景手动加载且标记为 `autorelease=true` 的所有资源
      */
-    public releaseManualLoaded() {
+    private releaseManualLoaded() {
         for (let k in this._loadedAssets) {
             let loadedAsset = this._loadedAssets.get(k);
             if (loadedAsset) {

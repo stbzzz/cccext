@@ -5,14 +5,12 @@ export namespace frm {
 
     export const LayerMap = {
         View: 'ViewRoot__',
-        LoadRes: 'LoadResRoot__',
-        Request: 'RequestRoot__',
+        Mask: 'MaskRoot__', // LoadRes | Request
         Toast: 'ToastRoot__',
     };
     export const Layers = [
         LayerMap.View,
-        LayerMap.LoadRes,
-        LayerMap.Request,
+        LayerMap.Mask,
         LayerMap.Toast,
     ];
 

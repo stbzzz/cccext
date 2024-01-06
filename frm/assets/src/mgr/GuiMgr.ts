@@ -48,7 +48,6 @@ class GuiMgr extends Singleton {
 
     /**
      * XXXView 压栈
-     * @param bundlename 分包名
      * @param path XXXView 预制体路径
      * @param data 携带参数
      * @param stacks 是否堆叠显示
@@ -58,11 +57,11 @@ class GuiMgr extends Singleton {
      * @param suffix uuid 后缀
      * @returns
      */
-    public pushView(bundlename: string, path: string, data?: any, stacks = false, showMaskWhenTop = false, showType = 0, hideType = 0, suffix = '') {
+    public pushView(path: string, data?: any, stacks = false, showMaskWhenTop = false, showType = 0, hideType = 0, suffix = '') {
         const pathArr = path.split('/');
         const len = pathArr.length;
-        if (len == 0) {
-            warn('[Gui.addView] invalid path: ', path);
+        if (len < 2) {
+            warn(`[Gui.pushView] invalid path: ${path}`);
             return;
         }
 
@@ -72,16 +71,20 @@ class GuiMgr extends Singleton {
             if (viewData.uuid == uuid) return;
         }
 
+        const bundlename = pathArr[0];
+        const prefabPath = pathArr.slice(1).join('/');
+
         const level = this.getViewLevel(stacks);
         this._viewDatas.push({ uuid, view: null, level, showMaskWhenTop });
 
         this.setLoadingMask(true);
-        Res.loadPrefab(bundlename, path, (err, prefab) => {
+        Res.loadPrefab(bundlename, prefabPath, (err, prefab) => {
+            this.setLoadingMask(false);
             if (err) {
-                this.setLoadingMask(false);
                 this.removeViewData(uuid);
                 return;
             }
+            log(`[Gui.pushView] ${path} success!`);
             this.createView(prefab!, data, showType, hideType, suffix);
         });
     }
@@ -136,7 +139,7 @@ class GuiMgr extends Singleton {
      * 将 uuid 对应的 View 上面的所有 View 弹出，如果找不到则不操作。
      * @param uuid
      */
-    public popViewUtil(uuid: string, showType = 0, hideType = 0) {
+    public popViewUntil(uuid: string, showType = 0, hideType = 0) {
         const len = this._viewDatas.length;
         if (len === 0) return;
         let popStartIndex = len;
@@ -168,7 +171,7 @@ class GuiMgr extends Singleton {
                 n++;
             } else break;
         }
-        this.popView(n);
+        this.popView(n, showType, hideType);
     }
 
     /**
@@ -177,7 +180,6 @@ class GuiMgr extends Singleton {
      * @returns
      */
     public removeView(uuid: string, showType = 0, hideType = 0) {
-        log(uuid);
         const len = this._viewDatas.length;
         if (len === 0) return;
         let removeIndex = len;
@@ -243,7 +245,7 @@ class GuiMgr extends Singleton {
         if (visible) {
             if (!isValid(this._requestMask)) {
                 this._requestMask = instantiate(Res.preloaded.requestMaskPrefab);
-                let root = Res.getRoot(frm.LayerMap.Request);
+                let root = Res.getRoot(frm.LayerMap.Mask);
                 root.addChild(this._requestMask);
             }
             this._requestMask!.active = true;
@@ -279,7 +281,6 @@ class GuiMgr extends Singleton {
 
     private async createView(prefab: Prefab, data: any, showType: number, hideType: number, suffix: string) {
         // await this.randomDelay();
-        log(suffix);
 
         const uuid = suffix != '' ? `${prefab.name}_${suffix}` : prefab.name;
         // 检测是否在栈里
@@ -396,7 +397,7 @@ class GuiMgr extends Singleton {
         if (visible) {
             if (!isValid(this._loadingMask)) {
                 this._loadingMask = instantiate(Res.preloaded.loadingMaskPrefab);
-                let root = Res.getRoot(frm.LayerMap.LoadRes);
+                let root = Res.getRoot(frm.LayerMap.Mask);
                 root.addChild(this._loadingMask);
             }
             this._loadingMask!.active = true;
