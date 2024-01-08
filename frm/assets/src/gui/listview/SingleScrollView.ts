@@ -4,7 +4,7 @@
  * 水平：view anchor(0.0, 0.5), content anchor(0.0, 0.5)
  */
 
-import { CCBoolean, CCInteger, Component, Node, Prefab, ScrollView, Touch, UITransform, Vec2, Widget, _decorator, instantiate, log, v2, v3 } from "cc";
+import { CCBoolean, CCInteger, Component, Node, Prefab, ScrollView, Touch, UITransform, Vec2, Widget, _decorator, instantiate, v2, v3 } from "cc";
 import { frm } from "../../Defines";
 import { ScrollMultiItemParent } from "./ScrollMultiItemParent";
 import { ScrollRowOrColItem } from "./ScrollRowOrColItem";
@@ -307,8 +307,6 @@ export class SingleScrollView extends Component {
                 comp.setData(data);
             } else node.active = false;
         });
-
-        log(this._content.children);
     }
 
     private cell2ViewPos(cell: Node): Vec2 {
