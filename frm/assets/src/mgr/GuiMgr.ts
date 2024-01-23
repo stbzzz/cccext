@@ -230,7 +230,6 @@ class GuiMgr extends Singleton {
         }
         // scene
         let scene = director.getScene()!.getChildByName('Canvas')!.getComponent(BaseScene);
-        log(scene);
         if (scene) {
             const comp = scene as any;
             const func = comp[`${prefix}_${funcname}`];

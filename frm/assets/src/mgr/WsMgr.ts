@@ -26,7 +26,15 @@ class WsMgr extends Singleton {
         this._pingCount++;
     }
 
-    public connect(cb: ConnectCallback, token?: string) {
+    public initToken(token: string) {
+        this._token = token;
+    }
+
+    public onMessage(cb: (data: any) => void) {
+        this._onMessageCb = cb;
+    }
+
+    public connect(cb: ConnectCallback) {
         let handler = this._handler;
         if (handler) {
             const readyState = handler.readyState;
@@ -38,8 +46,8 @@ class WsMgr extends Singleton {
         this._needConnectActive = false;
         this._connectCb = cb;
         let url = this._url;
-        if (token) {
-            url += `?token=${token}`;
+        if (this._token) {
+            url += `?token=${this._token}`;
         }
         this._handler = new WebSocket(url);
         this._handler.binaryType = 'arraybuffer';
@@ -67,9 +75,7 @@ class WsMgr extends Singleton {
         if (!this._connected) return;
         this._handler?.send(data);
     }
-    ////
-    protected onCreate(): void {
-    }
+
     ////
     private _onopen() {
         this._connected = true;
@@ -129,6 +135,7 @@ class WsMgr extends Singleton {
     private _handler: WebSocket | null = null;
     private _connectCb: (code: number, msg: string) => void = null!;
     private _onMessageCb: (data: any) => void = null!;
+    private _token: string | null = null;
 }
 
 export const Ws = WsMgr.getInstance() as WsMgr;

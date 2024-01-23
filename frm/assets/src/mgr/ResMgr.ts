@@ -37,7 +37,7 @@ class ResMgr extends Singleton {
         const pathArr = path.split('/');
         const len = pathArr.length;
         if (len < 2) {
-            warn('[Gui.addView] invalid path: ', path);
+            warn('[Res.loadScene] invalid path: ', path);
             return;
         }
         const bundlename = pathArr[0];
@@ -76,12 +76,18 @@ class ResMgr extends Singleton {
     /**
      * 设置精灵图像
      * @param target 目标精灵
-     * @param bundlename 分包名
      * @param path 精灵路径
      * @param autorelease 切换场景时，是否自动删除
      */
-    public setSpriteFrame(target: Sprite, bundlename: string, path: string, autorelease = true) {
-        this.manualLoadAny(bundlename, `${path}/spriteFrame`, SpriteFrame, (err, asset) => {
+    public setSpriteFrame(target: Sprite, path: string, autorelease = true) {
+        const pathArr = path.split('/');
+        const len = pathArr.length;
+        if (len < 2) {
+            warn('[Res.setSpriteFrame] invalid path: ', path);
+            return;
+        }
+        const bundlename = pathArr[0];
+        this.manualLoadAny(bundlename, `${pathArr.slice(1).join('/')}/spriteFrame`, SpriteFrame, (err, asset) => {
             if (err) return error(err);
 
             if (target && isValid(target)) {
@@ -93,13 +99,19 @@ class ResMgr extends Singleton {
 
     /**
      * 加载骨骼动画
-     * @param bundlename 分包名称
      * @param path 骨骼路径
      * @param onComplete 加载完成回调
      * @param autorelease 切换场景时，是否自动删除
      */
-    public loadSpine(bundlename: string, path: string, onComplete?: (err: Error | null, asset: sp.SkeletonData | null) => void, autorelease = true) {
-        this.manualLoadAny(bundlename, path, sp.SkeletonData, onComplete, autorelease);
+    public loadSpine(path: string, onComplete?: (err: Error | null, asset: sp.SkeletonData | null) => void, autorelease = true) {
+        const pathArr = path.split('/');
+        const len = pathArr.length;
+        if (len < 2) {
+            warn('[Res.loadSpine] invalid path: ', path);
+            return;
+        }
+        const bundlename = pathArr[0];
+        this.manualLoadAny(bundlename, pathArr.slice(1).join('/'), sp.SkeletonData, onComplete, autorelease);
     }
 
     /**
@@ -172,7 +184,6 @@ class ResMgr extends Singleton {
      * @returns
      */
     private manualLoadAny<T extends Asset>(bundlename: string, path: string, type: __private._types_globals__Constructor<T>, onComplete?: (err: Error | null, asset: T | null) => void, autorelease = true) {
-
         const loadedAsset = this._loadedAssets.get(path);
         if (loadedAsset && isValid(loadedAsset.asset)) {
             return onComplete && onComplete(null, loadedAsset.asset as T);

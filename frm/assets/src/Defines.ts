@@ -34,6 +34,7 @@ export namespace frm {
     export interface IGameConfig {
         mode: string;
         version: string;
+        channel: string;
         servers: { [mode: string]: IServerConfig };
     }
 
