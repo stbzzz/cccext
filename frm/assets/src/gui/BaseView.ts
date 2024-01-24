@@ -1,9 +1,14 @@
 
 import { Foundation } from "./Foundation";
+import { Closeable } from "./comp/Closeable";
 
 export class BaseView extends Foundation {
     public get data(): any { return this._data_$abc; }
-    public init(data: any) { this._data_$abc = data; }
+    public init(suffix: string, data: any) {
+        this.getComponent(Closeable)?.init(suffix);
+
+        this._data_$abc = data;
+    }
 
     public isVisible(): boolean {
         return this.node.active;

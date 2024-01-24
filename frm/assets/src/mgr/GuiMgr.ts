@@ -1,9 +1,7 @@
 import { Node, Prefab, UIOpacity, director, instantiate, isValid, log, tween, v3, warn } from "cc";
 import { frm } from "../Defines";
-import { BaseScene } from "../gui/BaseScene";
 import { BaseView } from "../gui/BaseView";
 import { Toast } from "../gui/Toast";
-import { Closeable } from "../gui/comp/Closeable";
 import { Pool } from "./PoolMgr";
 import { Res } from "./ResMgr";
 import { Singleton } from "./Singleton";
@@ -229,7 +227,7 @@ class GuiMgr extends Singleton {
             }
         }
         // scene
-        let scene = director.getScene()!.getChildByName('Canvas')!.getComponent(BaseScene);
+        let scene = director.getScene()!.getChildByName('Canvas')!.getComponent('BaseScene');
         if (scene) {
             const comp = scene as any;
             const func = comp[`${prefix}_${funcname}`];
@@ -289,11 +287,9 @@ class GuiMgr extends Singleton {
 
         let root = Res.getRoot(frm.LayerMap.View);
         let node = instantiate(prefab),
-            closeableComp = node.getComponent(Closeable)!,
             viewComp = node.getComponent(prefab.name) as BaseView;
 
-        viewComp.init(data);
-        closeableComp.init(suffix);
+        viewComp.init(suffix, data);
         viewComp.setVisible(false);
         root.addChild(node);
 
