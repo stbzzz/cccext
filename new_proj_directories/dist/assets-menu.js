@@ -46,9 +46,9 @@ function onCreateMenu(assetInfo) {
     }
 }
                 `);
-                Editor.Message.send('asset-db', 'create-asset', 'db://assets/scripts/conf/Config.ts', "export namespace nscfg {}");
+                Editor.Message.send('asset-db', 'create-asset', 'db://assets/scripts/conf/ConfigType.ts', "export namespace nscfg {}");
                 Editor.Message.send('asset-db', 'create-asset', 'db://assets/scripts/conf/CommonDefine.ts', "export namespace nscommon {}");
-                Editor.Message.send('asset-db', 'create-asset', 'db://assets/scripts/conf/Server.ts', "export namespace nssvr {}");
+                Editor.Message.send('asset-db', 'create-asset', 'db://assets/scripts/conf/ServerType.ts', "export namespace nssvr {}");
                 Editor.Message.send('asset-db', 'create-asset', 'db://assets/scripts/data/AuthData.ts', `import { BaseData } from "../../../extensions/frm/assets/src/mgr/DataMgr";
 
 export class AuthData extends BaseData {
