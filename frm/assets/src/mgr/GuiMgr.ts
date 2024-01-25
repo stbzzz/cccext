@@ -55,7 +55,7 @@ class GuiMgr extends Singleton {
      * @param suffix uuid 后缀
      * @returns
      */
-    public pushView(path: string, data?: any, stacks = false, showMaskWhenTop = false, showType = 0, hideType = 0, suffix = '') {
+    public pushView(path: string, data?: any, stacks = false, showMaskWhenTop = true, showType = 0, hideType = 0, suffix = '') {
         const pathArr = path.split('/');
         const len = pathArr.length;
         if (len < 2) {
@@ -98,7 +98,7 @@ class GuiMgr extends Singleton {
      * @param suffix uuid 后缀
      * @returns
      */
-    public pushPreloadView(prefab: Prefab, data?: any, stacks = false, showMaskWhenTop = false, showType = 0, hideType = 0, suffix = '') {
+    public pushPreloadView(prefab: Prefab, data?: any, stacks = false, showMaskWhenTop = true, showType = 0, hideType = 0, suffix = '') {
         const uuid = suffix != '' ? `${prefab.name}_${suffix}` : prefab.name;
         for (const viewData of this._viewDatas) {
             if (viewData.uuid == uuid) return;
@@ -326,7 +326,12 @@ class GuiMgr extends Singleton {
 
     private checkLevel(fromCreate: boolean, showType: number, hideType: number) {
         let topIndex = this._viewDatas.length - 1;
-        if (topIndex < 0) return;
+        if (topIndex < 0) {
+            if (isValid(this._viewMask)) {
+                this._viewMask!.active = false;
+            }
+            return;
+        }
         const topViewData = this._viewDatas[topIndex];
         const topView = topViewData.view!;
         if (isValid(topView) && !topView.isVisible() && !topView.onShow(showType, fromCreate)) {
@@ -338,11 +343,6 @@ class GuiMgr extends Singleton {
                 this._viewMask = instantiate(Res.preloaded.viewMaskPrefab);
                 let root = Res.getRoot(frm.LayerMap.View);
                 root.addChild(this._viewMask);
-                let index = root.children.length - 2;
-                if (index < 0) {
-                    index = 0;
-                }
-                this._viewMask.setSiblingIndex(index);
             }
             this._viewMask!.active = true;
         } else if (isValid(this._viewMask)) {
@@ -367,8 +367,11 @@ class GuiMgr extends Singleton {
 
         // 排序
         let siblingIndex = 0;
-        this._viewDatas.forEach(v => {
+        this._viewDatas.forEach((v, i) => {
             if (isValid(v.view)) {
+                if (topViewData.showMaskWhenTop && i == this._viewDatas.length - 1) {
+                    isValid(this._viewMask) && this._viewMask!.setSiblingIndex(siblingIndex++);
+                }
                 v.view!.node.setSiblingIndex(siblingIndex++);
             }
         });

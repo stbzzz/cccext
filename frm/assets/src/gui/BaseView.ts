@@ -17,6 +17,10 @@ export class BaseView extends Foundation {
         this.node.active = visible;
     }
 
+    protected _closeView() {
+        this.getComponent(Closeable)?.onClickClose(void 0, "");
+    }
+
     /**
      * 当 View 显示的时候调用
      *

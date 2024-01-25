@@ -33,7 +33,7 @@ class ResMgr extends Singleton {
      * @param path
      * @param onProgressCb
      */
-    public loadScene(path: string, onProgressCb?: (progress: number) => void) {
+    public loadScene(path: string, onProgressCb?: (progress: number) => void, onComplete?: () => void) {
         const pathArr = path.split('/');
         const len = pathArr.length;
         if (len < 2) {
@@ -57,6 +57,7 @@ class ResMgr extends Singleton {
                             error(err);
                             return;
                         }
+                        onComplete && onComplete();
                         director.loadScene(scenename);
                     });
                 } else {
@@ -65,6 +66,7 @@ class ResMgr extends Singleton {
                             error(err);
                             return;
                         }
+                        onComplete && onComplete();
                         director.loadScene(scenename);
                     });
                 }
