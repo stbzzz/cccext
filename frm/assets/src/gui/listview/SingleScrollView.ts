@@ -4,7 +4,7 @@
  * 水平：view anchor(0.0, 0.5), content anchor(0.0, 0.5)
  */
 
-import { CCBoolean, CCInteger, Component, Node, Prefab, ScrollView, Touch, UITransform, Vec2, Widget, _decorator, instantiate, v2, v3 } from "cc";
+import { CCInteger, Component, Node, Prefab, ScrollView, Touch, UITransform, Vec2, Widget, _decorator, instantiate, v2, v3 } from "cc";
 import { frm } from "../../Defines";
 import { ScrollMultiItemParent } from "./ScrollMultiItemParent";
 import { ScrollRowOrColItem } from "./ScrollRowOrColItem";
@@ -24,7 +24,7 @@ export class SingleScrollView extends Component {
     @property(CCInteger)
     private spacing = 0;
 
-    @property({ type: CCBoolean, tooltip: '网格列表' })
+    @property({ tooltip: '网格列表' })
     private isGrid = false;
 
     @property({
