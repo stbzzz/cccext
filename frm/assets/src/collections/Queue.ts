@@ -40,7 +40,7 @@ export class Queue<T> {
     public pop(): T | null {
         if (this._head == this._tail) return null;
 
-        let t = this._array[this._tail--];
+        let t = this._array[--this._tail];
         if (this._head == this._tail) {
             this._head = this._tail = 0;
             this._array = [];
