@@ -17,10 +17,10 @@ export namespace frm {
     /**
      * 发布类型
      */
-    export const Mode = {
-        Dev: 'dev',
-        Debug: 'debug',
-        Release: 'release',
+    export enum Mode {
+        Dev = 1,
+        Debug = 2,
+        Release = 3,
     }
 
     interface IServerConfig {
@@ -32,12 +32,9 @@ export namespace frm {
      * 游戏配置
      */
     export interface IGameConfig {
-        mode: string;
         version: string;
-        channel: string;
         servers: { [mode: string]: IServerConfig };
     }
-
 
     /////////////////////////////////////////////
     // ListView

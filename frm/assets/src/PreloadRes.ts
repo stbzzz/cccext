@@ -1,5 +1,4 @@
-import { Component, JsonAsset, Prefab, _decorator, director, profiler } from "cc";
-import { frm } from "./Defines";
+import { Component, JsonAsset, Prefab, _decorator, director } from "cc";
 import { Timer } from "./mgr/TimerMgr";
 
 const { ccclass, property } = _decorator;
@@ -25,15 +24,6 @@ export class PreloadRes extends Component {
 
     protected onLoad(): void {
         director.addPersistRootNode(this.node);
-
-        const gameConfig = this.gameConfigJson.json as frm.IGameConfig;
-        if (gameConfig.mode == frm.Mode.Release) {
-            profiler.hideStats();
-        } else {
-            profiler.showStats();
-        }
-
-        console.log(`Game ver: ${gameConfig.version}, mode: ${gameConfig.mode}`);
     }
 
     protected update(dt: number): void {

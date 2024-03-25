@@ -34,7 +34,11 @@ class WsMgr extends Singleton {
         this._onMessageCb = cb;
     }
 
-    public connect(cb: ConnectCallback) {
+    public onConnect(cb: ConnectCallback) {
+        this._connectCb = cb;
+    }
+
+    public connect() {
         let handler = this._handler;
         if (handler) {
             const readyState = handler.readyState;
@@ -44,7 +48,6 @@ class WsMgr extends Singleton {
             this.disconnect();
         }
         this._needConnectActive = false;
-        this._connectCb = cb;
         let url = this._url;
         if (this._token) {
             url += `?token=${this._token}`;
@@ -117,7 +120,7 @@ class WsMgr extends Singleton {
         Timer.delay(() => {
             if (!this._connected) this.tryReconnect();
         }, AutoReconnectInterval, 9999);
-        this.connect(this._connectCb);
+        this.connect();
     }
 
     private tryReconnect() {

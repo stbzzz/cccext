@@ -34,8 +34,8 @@ function onCreateMenu(assetInfo) {
                  */
                 Editor.Message.send('asset-db', 'create-asset', 'db://assets/bundles/common/remove_me.json', `["删除我，我是占位文件"]`);
                 Editor.Message.send('asset-db', 'create-asset', 'db://assets/preload/conf/game.json', `{
-    "mode": "dev",
     "version": "1.0.0",
+    "desc": "Dev(1) | Debug(2) | Release(3)",
     "servers": {
         "dev": {
             "ws": "ws://192.168.3.113:8822/fight",
