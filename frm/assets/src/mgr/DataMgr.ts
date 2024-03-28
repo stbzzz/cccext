@@ -3,6 +3,11 @@ import { Singleton } from "./Singleton";
 export class BaseData {
     public clear() { }
 
+    public static ist<T extends BaseData>(this: new (name: string, priority: number) => T): T {
+        const name = (this as any).__class_name__;
+        return Data.get(name) as T;
+    }
+
     public constructor(name: string, priority: number) {
         this._name = name;
         this._priority = priority;
