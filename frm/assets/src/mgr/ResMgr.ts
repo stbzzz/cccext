@@ -1,4 +1,5 @@
 import { Asset, AssetManager, JsonAsset, Node, Prefab, Sprite, SpriteFrame, Widget, __private, assetManager, director, error, find, isValid, sp, warn } from "cc";
+import { App } from "../App";
 import { frm } from "../Defines";
 import { PreloadRes } from "../PreloadRes";
 import { BaseScene } from "../gui/BaseScene";
@@ -253,12 +254,18 @@ class ResMgr extends Singleton {
         }
     }
 
+    public get app(): App {
+        if (this._app) return this._app;
+        return this._preloadRes = find('__app__')!.getComponent(App)!;
+    }
+
     public get preloaded(): PreloadRes {
         if (this._preloadRes) return this._preloadRes;
         return this._preloadRes = find('__app__')!.getComponent(PreloadRes)!;
     }
 
     //private
+    private _app: App = null!;
     private _preloadRes: PreloadRes = null!;
     private _layerCache: { [key: string]: Node } = {};
     private _loadedAssets = new Map<string, ILoadedAsset>();

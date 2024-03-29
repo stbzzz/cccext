@@ -37,12 +37,12 @@ function onCreateMenu(assetInfo) {
     "version": "1.0.0",
     "desc": "Dev(1) | Debug(2) | Release(3)",
     "servers": {
-        "dev": {
+        "1": {
             "ws": "ws://192.168.3.113:8822/fight",
             "http": "http://192.168.3.113:8820"
         },
-        "debug": {},
-        "release": {}
+        "2": {},
+        "3": {}
     }
 }
                 `);
