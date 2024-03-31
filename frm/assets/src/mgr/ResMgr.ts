@@ -1,4 +1,4 @@
-import { Asset, AssetManager, JsonAsset, Node, Prefab, Sprite, SpriteFrame, Widget, __private, assetManager, director, error, find, isValid, sp, warn } from "cc";
+import { Asset, AssetManager, ImageAsset, JsonAsset, Node, Prefab, Sprite, SpriteFrame, Texture2D, Widget, __private, assetManager, director, error, find, isValid, sp, warn } from "cc";
 import { App } from "../App";
 import { frm } from "../Defines";
 import { PreloadRes } from "../PreloadRes";
@@ -17,6 +17,41 @@ class ResMgr extends Singleton {
     public clear() {
         this._layerCache = {};
         this.releaseManualLoaded();
+        this.releaseRemoteImages();
+    }
+
+    /**
+    * 加载远程图片
+    * @param target
+    * @param url
+    * @returns
+    */
+    public loadRemoteImage(target: Sprite, url: string) {
+        if (!url || url == "") return;
+        url = decodeURI(url);
+        assetManager.loadRemote<ImageAsset>(url, (err, asset) => {
+            if (err) return error(err);
+            this._remoteImages.set(url, asset);
+            let frame = new SpriteFrame();
+            let texture = new Texture2D();
+            texture.image = asset;// cached by assetManager; default: refCount = 0
+            frame.texture = texture;
+            frame.packable = true;
+            if (isValid(target)) {
+                target.node.active = true;
+                target.spriteFrame = frame;
+            }
+        });
+    }
+
+    /**
+     * 删除远程加载的图片
+     */
+    public releaseRemoteImages() {
+        this._remoteImages.forEach(v => {
+            assetManager.releaseAsset(v);
+        });
+        this._remoteImages.clear();
     }
 
     /**
@@ -256,7 +291,7 @@ class ResMgr extends Singleton {
 
     public get app(): App {
         if (this._app) return this._app;
-        return this._preloadRes = find('__app__')!.getComponent(App)!;
+        return this._app = find('__app__')!.getComponent(App)!;
     }
 
     public get preloaded(): PreloadRes {
@@ -269,6 +304,7 @@ class ResMgr extends Singleton {
     private _preloadRes: PreloadRes = null!;
     private _layerCache: { [key: string]: Node } = {};
     private _loadedAssets = new Map<string, ILoadedAsset>();
+    private _remoteImages = new Map<string, ImageAsset>();
 }
 
 export const Res = ResMgr.getInstance() as ResMgr;

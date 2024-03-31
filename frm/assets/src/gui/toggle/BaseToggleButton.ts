@@ -1,5 +1,4 @@
 import { _decorator, Component, Sprite, SpriteFrame } from 'cc';
-import { ToggleGroup } from './ToggleGroup';
 const { ccclass, property } = _decorator;
 
 type Handler = (index: number) => void;
@@ -10,12 +9,12 @@ export class BaseToggleButton extends Component {
     @property(Sprite)
     private btnBg: Sprite = null!;
 
-    private _parent: ToggleGroup = null!;
+    private _parent: any = null!;
     private _index: number = 0;
     private _clickHandler: (Handler) | null = null;
 
     public setIndex(index: number) {
-        this._parent = this.node.parent!.getComponent(ToggleGroup)!;
+        this._parent = this.node.parent!.getComponent('ToggleGroup')!;
         this._index = index;
     }
 
