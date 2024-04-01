@@ -37,7 +37,7 @@ export class Util {
     }
 
     /**
-     * 从 p1 只想 p2 形成的向量与 (1,0) 向量的夹角
+     * 从 p1 指向 p2 形成的向量与 (1,0) 向量的夹角
      * @param p1
      * @param p2
      * @param translate
