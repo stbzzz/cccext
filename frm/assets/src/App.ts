@@ -14,7 +14,7 @@ const { ccclass, property } = _decorator;
 @requireComponent(PreloadRes)
 export class App extends Component {
     @property({ type: ModeEnum })
-    protected mode = ModeEnum.Dev;
+    public mode = ModeEnum.Dev;
 
     protected onLoad(): void {
         const preloadRes = this.getComponent(PreloadRes)!;
