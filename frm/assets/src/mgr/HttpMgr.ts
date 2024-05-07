@@ -219,7 +219,7 @@ class HttpMgr extends Singleton {
      * @param post 客户端参数
      * @returns 返回一个 Promise，并且此 Promise 只会 resolve。所以不需要 try-catch
      */
-    public req(path: string, param?: any, post?: frm.IPostData): Promise<frm.RecvDataEntity> {
+    public req<T = any>(path: string, param?: any, post?: frm.IPostData): Promise<frm.RecvDataEntity<T>> {
         return new Promise((res, _) => {
             let request = this.getRequest(path, param, post);
             let startStampMS = (new Date).getTime();
