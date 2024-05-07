@@ -52,6 +52,7 @@ function onCreateMenu(assetInfo) {
                 Editor.Message.send('asset-db', 'create-asset', 'db://assets/scripts/data/AuthData.ts', `import { BaseData } from "../../../extensions/frm/assets/src/mgr/DataMgr";
 
 export class AuthData extends BaseData {
+    public static __class_name__ = "auth";
 }
                 `);
                 Editor.Message.send('asset-db', 'create-asset', 'db://assets/scripts/gui/common/remove_me.json', `["删除我，我是占位文件"]`);
@@ -77,7 +78,7 @@ const { ccclass } = _decorator;
 @ccclass('MyApp')
 export class MyApp extends App {
     protected onCreate(gameConfig: frm.IGameConfig) {
-        Data.addData(new AuthData('auth', 100));
+        Data.addData(new AuthData(AuthData.__class_name__, 100));
     }
 }
                 `);
