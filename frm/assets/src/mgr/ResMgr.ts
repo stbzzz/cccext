@@ -165,6 +165,30 @@ class ResMgr extends Singleton {
     }
 
     /**
+     * 加载预制体
+     * @param path
+     * @param autorelease
+     * @returns
+     */
+    public loadPrefabAsync(path: string, autorelease = true): Promise<Prefab | null> {
+        const pathArr = path.split('/');
+        const len = pathArr.length;
+        if (len < 2) {
+            warn('[Res.loadPrefabAsync] invalid path: ', path);
+            return Promise.resolve(null);
+        }
+        return new Promise((res, _) => {
+            const bundlename = pathArr[0];
+            this.loadPrefab(bundlename, pathArr.slice(1).join('/'), (err, asset) => {
+                if (err) {
+                    return res(null);
+                }
+                res(asset);
+            });
+        });
+    }
+
+    /**
      * 加载目录中的 json 配置
      * @param bundlename 分包名称
      * @param configDir json 目录
