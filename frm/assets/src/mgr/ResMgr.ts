@@ -183,7 +183,7 @@ class ResMgr extends Singleton {
                     return res(null);
                 }
                 res(asset);
-            });
+            }, autorelease);
         });
     }
 
