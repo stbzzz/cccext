@@ -154,14 +154,20 @@ class ResMgr extends Singleton {
 
     /**
      * 加载预制体
-     * @param bundlename 分包名称
      * @param path 预制体路径
      * @param onComplete 加载完成回调
      * @param autorelease 切换场景时，是否自动删除
      * @returns
      */
-    public loadPrefab(bundlename: string, path: string, onComplete?: (err: Error | null, asset: Prefab | null) => void, autorelease = true) {
-        this.manualLoadAny(bundlename, path, Prefab, onComplete, autorelease);
+    public loadPrefab(path: string, onComplete?: (err: Error | null, asset: Prefab | null) => void, autorelease = true) {
+        const pathArr = path.split('/');
+        const len = pathArr.length;
+        if (len < 2) {
+            warn('[Res.loadPrefabAsync] invalid path: ', path);
+            return Promise.resolve(null);
+        }
+        const bundlename = pathArr[0];
+        this.manualLoadAny(bundlename, pathArr.slice(1).join('/'), Prefab, onComplete, autorelease);
     }
 
     /**
@@ -171,15 +177,8 @@ class ResMgr extends Singleton {
      * @returns
      */
     public loadPrefabAsync(path: string, autorelease = true): Promise<Prefab | null> {
-        const pathArr = path.split('/');
-        const len = pathArr.length;
-        if (len < 2) {
-            warn('[Res.loadPrefabAsync] invalid path: ', path);
-            return Promise.resolve(null);
-        }
         return new Promise((res, _) => {
-            const bundlename = pathArr[0];
-            this.loadPrefab(bundlename, pathArr.slice(1).join('/'), (err, asset) => {
+            this.loadPrefab(path, (err, asset) => {
                 if (err) {
                     return res(null);
                 }

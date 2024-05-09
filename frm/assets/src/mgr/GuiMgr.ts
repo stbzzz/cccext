@@ -69,14 +69,11 @@ class GuiMgr extends Singleton {
             if (viewData.uuid == uuid) return;
         }
 
-        const bundlename = pathArr[0];
-        const prefabPath = pathArr.slice(1).join('/');
-
         const level = this.getViewLevel(stacks);
         this._viewDatas.push({ uuid, view: null, level, showMaskWhenTop });
 
         this.setLoadingMask(true);
-        Res.loadPrefab(bundlename, prefabPath, (err, prefab) => {
+        Res.loadPrefab(path, (err, prefab) => {
             this.setLoadingMask(false);
             if (err) {
                 this.removeViewData(uuid);
