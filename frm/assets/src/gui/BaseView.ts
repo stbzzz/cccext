@@ -41,6 +41,7 @@ export class BaseView extends Foundation {
      *              return true;
      *          }
      *      }
+     *      // 未实现动画，直接显示
      *      return false;
      * }
      * ```

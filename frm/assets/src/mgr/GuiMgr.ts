@@ -1,7 +1,8 @@
-import { Node, Prefab, UIOpacity, director, instantiate, isValid, log, tween, v3, warn } from "cc";
+import { Button, Node, Prefab, UIOpacity, director, instantiate, isValid, log, tween, v3, warn } from "cc";
 import { frm } from "../Defines";
 import { BaseView } from "../gui/BaseView";
 import { Toast } from "../gui/Toast";
+import { ButtonScale } from "../gui/button/ButtonScale";
 import { Pool } from "./PoolMgr";
 import { Res } from "./ResMgr";
 import { Singleton } from "./Singleton";
@@ -14,6 +15,42 @@ interface IViewData {
 }
 
 class GuiMgr extends Singleton {
+
+    /**
+     * 添加点击事件
+     * @param node
+     * @param clickEvent
+     * @param target
+     * @param scale
+     * @param interval
+     * @returns
+     */
+    public addBtnClick(node: Node, clickEvent: Function, target: any, scale = 0.95, interval = 200): Node {
+        if (!isValid(node)) {
+            log('invalid node');
+            return node;
+        }
+        let button = node.getComponent(Button);
+        if (!button) node.addComponent(Button);
+
+        let buttonScale = node.getComponent(ButtonScale);
+        if (!buttonScale) {
+            buttonScale = node.addComponent(ButtonScale);
+        }
+        buttonScale.setZoomScale(scale);
+
+        if (clickEvent != null) {
+            node.off("click");
+            node.on("click", (event: any) => {
+                if (!this.multipleClick(`click_id:${event._id}`, interval)) {
+                    log(`${interval}ms时间内不允许点击`);
+                    return;
+                }
+                clickEvent && clickEvent.call(target, event);
+            }, this);
+        }
+        return node;
+    }
 
     /**
      * 飞字
@@ -282,12 +319,12 @@ class GuiMgr extends Singleton {
             return;
         }
 
-        let root = Res.getRoot(frm.LayerMap.View);
         let node = instantiate(prefab),
             viewComp = node.getComponent(prefab.name) as BaseView;
 
         viewComp.init(suffix, data);
         viewComp.setVisible(false);
+        let root = Res.getRoot(frm.LayerMap.View);
         root.addChild(node);
 
         // bind view
@@ -401,6 +438,21 @@ class GuiMgr extends Singleton {
         }
     }
 
+    private multipleClick(key: string, interval: number): boolean {
+        let timestamp = (new Date()).valueOf();
+        let lastClick = this._clickCache.get(key);
+        if (!lastClick) {
+            this._clickCache.set(key, { timestamp, interval });
+            return true;
+        }
+        if (timestamp - lastClick.timestamp > lastClick.interval) {
+            lastClick.timestamp = timestamp;
+            this._clickCache.set(key, lastClick);
+            return true;
+        }
+        return false;
+    }
+
     private _checkFlyMsg() {
         let msgData = this._flyMsgArr.shift();
         if (msgData) {
@@ -446,6 +498,7 @@ class GuiMgr extends Singleton {
     private _loadingMask: Node | null = null;
     private _isFlying: boolean = false;
     private _flyMsgArr: { msg: string, colorHex: string }[] = [];
+    private _clickCache = new Map<string, any>();
 }
 
 
