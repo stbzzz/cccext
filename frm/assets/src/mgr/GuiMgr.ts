@@ -14,6 +14,14 @@ interface IViewData {
     showMaskWhenTop: boolean; // 当前层位于顶端的时候，是否需要显示下层的遮罩
 }
 
+interface IPushViewDetail {
+    stacks?: boolean;
+    showMaskWhenTop?: boolean;
+    showType?: number;
+    hideType?: number;
+    suffix?: string;
+}
+
 class GuiMgr extends Singleton {
 
     /**
@@ -79,68 +87,58 @@ class GuiMgr extends Singleton {
         this._loadingMask = null;
         this._isFlying = false;
         this._flyMsgArr = [];
+        this._clickCache.clear();
     }
 
     /**
      * XXXView 压栈
      * @param path XXXView 预制体路径
      * @param data 携带参数
-     * @param stacks 是否堆叠显示
-     * @param showMaskWhenTop 是否显示遮罩
-     * @param showType XXXView 入场回调
-     * @param hideType XXXView 出场回调
-     * @param suffix uuid 后缀
+     * @param IPushViewDetail \{stacks:false, showMaskWhenTop:true, showType:0, hideType:0, suffix:''}
      * @returns
      */
-    public pushView(path: string, data?: any, stacks = false, showMaskWhenTop = true, showType = 0, hideType = 0, suffix = '') {
-        const pathArr = path.split('/');
-        const len = pathArr.length;
-        if (len < 2) {
-            warn(`[Gui.pushView] invalid path: ${path}`);
-            return;
-        }
+    public pushView(path: string | Prefab, data?: any, detail?: IPushViewDetail) {
+        detail = detail || {};
+        let stacks = typeof detail.stacks === 'undefined' ? false : detail.stacks,
+            showMaskWhenTop = typeof detail.showMaskWhenTop === 'undefined' ? true : detail.showMaskWhenTop,
+            showType = typeof detail.showType === 'undefined' ? 0 : detail.showType,
+            hideType = typeof detail.hideType === 'undefined' ? 0 : detail.hideType,
+            suffix = typeof detail.suffix === 'undefined' ? '' : detail.suffix;
 
-        const clsname = pathArr[len - 1];
-        const uuid = suffix != '' ? `${clsname}_${suffix}` : clsname;
-        for (const viewData of this._viewDatas) {
-            if (viewData.uuid == uuid) return;
-        }
-
-        const level = this.getViewLevel(stacks);
-        this._viewDatas.push({ uuid, view: null, level, showMaskWhenTop });
-
-        this.setLoadingMask(true);
-        Res.loadPrefab(path, (err, prefab) => {
-            this.setLoadingMask(false);
-            if (err) {
-                this.removeViewData(uuid);
+        let uuid: string;
+        if (typeof path == 'string') {
+            const pathArr = path.split('/');
+            const len = pathArr.length;
+            if (len < 2) {
+                warn(`[Gui.pushView] invalid path: ${path}`);
                 return;
             }
-            log(`[Gui.pushView] ${path} success!`);
-            this.createView(prefab!, data, showType, hideType, suffix);
-        });
-    }
+            const clsname = pathArr[len - 1];
+            uuid = suffix != '' ? `${clsname}_${suffix}` : clsname;
+        } else {
+            uuid = suffix != '' ? `${path.name}_${suffix}` : path.name;
+        }
 
-    /**
-     * XXXView 压栈
-     * @param prefab 预加载的预制体对象
-     * @param data 携带参数
-     * @param stacks 是否堆叠显示
-     * @param showMaskWhenTop 是否显示遮罩
-     * @param showType XXXView 入场回调
-     * @param hideType XXXView 出场回调
-     * @param suffix uuid 后缀
-     * @returns
-     */
-    public pushPreloadView(prefab: Prefab, data?: any, stacks = false, showMaskWhenTop = true, showType = 0, hideType = 0, suffix = '') {
-        const uuid = suffix != '' ? `${prefab.name}_${suffix}` : prefab.name;
         for (const viewData of this._viewDatas) {
             if (viewData.uuid == uuid) return;
         }
-
         const level = this.getViewLevel(stacks);
         this._viewDatas.push({ uuid, view: null, level, showMaskWhenTop });
-        this.createView(prefab, data, showType, hideType, suffix);
+
+        if (typeof path == 'string') {
+            this.setLoadingMask(true);
+            Res.loadPrefab(path, (err, prefab) => {
+                this.setLoadingMask(false);
+                if (err) {
+                    this.removeViewData(uuid);
+                    return;
+                }
+                log(`[Gui.pushView] ${path} success!`);
+                this.createView(prefab!, data, showType, hideType, suffix);
+            });
+        } else {
+            this.createView(path, data, showType, hideType, suffix);
+        }
     }
 
     /**
@@ -310,9 +308,7 @@ class GuiMgr extends Singleton {
         });
     }
 
-    private async createView(prefab: Prefab, data: any, showType: number, hideType: number, suffix: string) {
-        // await this.randomDelay();
-
+    private createView(prefab: Prefab, data: any, showType: number, hideType: number, suffix: string) {
         const uuid = suffix != '' ? `${prefab.name}_${suffix}` : prefab.name;
         // 检测是否在栈里
         if (this._viewDatas.findIndex(v => v.uuid == uuid) === -1) {
@@ -322,7 +318,8 @@ class GuiMgr extends Singleton {
         let node = instantiate(prefab),
             viewComp = node.getComponent(prefab.name) as BaseView;
 
-        viewComp.init(suffix, data);
+        viewComp.data = data;
+        viewComp.setSuffix(suffix);
         viewComp.setVisible(false);
         let root = Res.getRoot(frm.LayerMap.View);
         root.addChild(node);
@@ -425,7 +422,7 @@ class GuiMgr extends Singleton {
         return this._viewLevel;
     }
 
-    private setLoadingMask(visible: boolean) {
+    public setLoadingMask(visible: boolean) {
         if (visible) {
             if (!isValid(this._loadingMask)) {
                 this._loadingMask = instantiate(Res.preloaded.loadingMaskPrefab);

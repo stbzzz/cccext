@@ -3,12 +3,6 @@ import { Node } from "cc";
 export namespace frm {
 
     export const LayerMap = {
-        /**
-         * UniqueView之间总是以替换的形式呈现，
-         * 它介于BaseScene和其他GUI之间
-         */
-        UniqueView: 'UniqueViewRoot__',
-        UniqueViewOverlay: 'UniqueViewOverlayRoot__',
         View: 'ViewRoot__',
         Mask: 'MaskRoot__', // LoadRes | Request
         Toast: 'ToastRoot__',
