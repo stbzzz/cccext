@@ -1,4 +1,4 @@
-import { IVec2Like, Node, UITransform, Vec3, isValid } from "cc";
+import { Component, IVec2Like, Node, UITransform, Vec3, __private, isValid } from "cc";
 
 type MixinObj = { [k: string]: string | number };
 
@@ -6,6 +6,13 @@ const Mathround = Math.round;
 const Mathfloor = Math.floor;
 
 export class Util {
+    public static getOrAddComponent<T extends Component>(node: Node, classConstructor: __private._types_globals__Constructor<T> | __private._types_globals__AbstractedConstructor<T>): T {
+        let comp = node.getComponent(classConstructor);
+        if (comp == null) {
+            comp = node.addComponent(classConstructor);
+        }
+        return comp;
+    }
 
 
     /**
