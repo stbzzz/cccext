@@ -6,6 +6,24 @@ const Mathround = Math.round;
 const Mathfloor = Math.floor;
 
 export class Util {
+    public static keyFromWeight(m: { [k: string]: number }, defaultKey: string): string {
+        let keys: string[] = [];
+        let weights: number[] = [];
+        let v = 0;
+        for (let k in m) {
+            v += m[k];
+            keys.push(k);
+            weights.push(v);
+        }
+        let r = Math.random() * v;
+        for (let i = 0; i < weights.length; i++) {
+            if (r < weights[i]) {
+                return keys[i];
+            }
+        }
+        return defaultKey;
+    }
+
     public static getOrAddComponent<T extends Component>(node: Node, classConstructor: __private._types_globals__Constructor<T> | __private._types_globals__AbstractedConstructor<T>): T {
         let comp = node.getComponent(classConstructor);
         if (comp == null) {
