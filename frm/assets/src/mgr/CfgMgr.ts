@@ -11,6 +11,14 @@ class CfgMgr extends Singleton {
         return this._jsons[name][id] as T;
     }
 
+    public getJsonByIds<T>(name: string, ids: number[] | string[]): T {
+        let json = this.getJsonById(name, ids[0]);
+        for (let i = 1; i < ids.length; i++) {
+            json = (json as any)[ids[i]];
+        }
+        return json as T;
+    }
+
     public initJsonAssets(jsonAssets: JsonAsset[]) {
         for (let jsonAsset of jsonAssets) {
             let name = jsonAsset.name;

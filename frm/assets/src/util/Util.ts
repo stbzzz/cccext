@@ -6,7 +6,7 @@ const Mathround = Math.round;
 const Mathfloor = Math.floor;
 
 export class Util {
-    public static keyFromWeight(m: { [k: string]: number }, defaultKey: string): string {
+    public static keyFromWeight(m: { [k: string]: number }): string {
         let keys: string[] = [];
         let weights: number[] = [];
         let v = 0;
@@ -21,7 +21,7 @@ export class Util {
                 return keys[i];
             }
         }
-        return defaultKey;
+        return keys[0];
     }
 
     public static getOrAddComponent<T extends Component>(node: Node, classConstructor: __private._types_globals__Constructor<T> | __private._types_globals__AbstractedConstructor<T>): T {
