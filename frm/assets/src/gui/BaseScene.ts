@@ -95,8 +95,7 @@ export class BaseScene extends Foundation {
             viewComp = node.getComponent(prefab.name) as UniqueView;
 
         viewComp.data = data;
-        viewComp.setVisible(false);
-        viewComp.onShow(showType, true);
+        viewComp.setVisible(!viewComp.onShow(showType, true));
         parent.addChild(node);
 
         // bind view
