@@ -50,7 +50,7 @@ class Request {
 
         // 初始化参数
         this._method = post._method || 'POST';
-        this._timeout = post._timeout || 3000;
+        this._timeout = post._timeout || 10000;
         this._autoretry = post._autoretry || 0;
         if (post.hasOwnProperty('_needauth')) {
             this._needauth = post._needauth!;
