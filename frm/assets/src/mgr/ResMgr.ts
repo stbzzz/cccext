@@ -117,6 +117,10 @@ class ResMgr extends Singleton {
      * @param autorelease 切换场景时，是否自动删除
      */
     public setSpriteFrame(target: Sprite, path: string, autorelease = true) {
+        this.setSpriteFrameWithCb(target, path, void 0, autorelease);
+    }
+
+    public setSpriteFrameWithCb(target: Sprite, path: string, successCb?: Function, autorelease = true) {
         const pathArr = path.split('/');
         const len = pathArr.length;
         if (len < 2) {
@@ -130,6 +134,7 @@ class ResMgr extends Singleton {
             if (target && isValid(target)) {
                 target.node.active = true;
                 target.spriteFrame = asset;
+                successCb && successCb();
             }
         }, autorelease);
     }
