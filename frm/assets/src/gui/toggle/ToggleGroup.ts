@@ -28,6 +28,10 @@ export class ToggleGroup extends Component {
         invokeClick && this._toggleHandler(index, -1);
     }
 
+    public jumpTo(index: number) {
+        this._onClick(index);
+    }
+
     /**
      * 设置是否可以取消选中，默认不可取消
      */
