@@ -51,8 +51,8 @@ export class BaseScene extends Foundation {
         this._isUniqueViewLoading = true;
 
         const oldViewData = this._uniqueViewData;
-        if (oldViewData && isValid(oldViewData.view) && (!oldViewData.view?.onHide(hideType, true))) {
-            oldViewData.view?.node.destroy();
+        if (oldViewData && isValid(oldViewData.view)) {
+            oldViewData.view?.hide(hideType, true);
         }
 
         this._uniqueViewData = { uuid, view: null };
@@ -95,7 +95,7 @@ export class BaseScene extends Foundation {
             viewComp = node.getComponent(prefab.name) as UniqueView;
 
         viewComp.data = data;
-        viewComp.setVisible(!viewComp.onShow(showType, true));
+        viewComp.show(showType, true);
         parent.addChild(node);
 
         // bind view

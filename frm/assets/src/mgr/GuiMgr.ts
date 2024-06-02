@@ -233,8 +233,8 @@ class GuiMgr extends Singleton {
                 const viewData = this._viewDatas[i];
                 this._viewDatas.splice(i, 1);
                 const view = viewData.view!;
-                if (isValid(view) && (!view.isVisible() || !view.onHide(hideType, true))) {
-                    view.node.destroy();
+                if (isValid(view)) {
+                    view.hide(hideType, true);
                 }
                 this.checkLevel(false, showType, hideType);
                 break;
@@ -346,8 +346,8 @@ class GuiMgr extends Singleton {
                 const viewData = this._viewDatas[i];
                 this._viewDatas.splice(i, 1);
                 const view = viewData.view!;
-                if (isValid(view) && (!view.isVisible() || !view.onHide(hideType, true))) {
-                    view.node.destroy();
+                if (isValid(view)) {
+                    view.hide(hideType, true);
                 }
             } else break;
         }
@@ -365,8 +365,8 @@ class GuiMgr extends Singleton {
         }
         const topViewData = this._viewDatas[topIndex];
         const topView = topViewData.view!;
-        if (isValid(topView) && !topView.isVisible() && !topView.onShow(showType, fromCreate)) {
-            topView.setVisible(true);
+        if (isValid(topView) && !topView.isVisible()) {
+            topView.show(showType, fromCreate);
         }
         // mask
         if (topViewData.showMaskWhenTop) {
@@ -386,12 +386,12 @@ class GuiMgr extends Singleton {
             const view = viewData.view!;
             if (level != viewData.level) {
                 level = viewData.level;
-                if (isValid(view) && !view.isVisible() && !view.onShow(showType, false)) {
-                    view.setVisible(true);
+                if (isValid(view) && !view.isVisible()) {
+                    view.show(showType, false);
                 }
             } else {
-                if (isValid(view) && view.isVisible() && !view.onHide(hideType, false)) {
-                    view.setVisible(false);
+                if (isValid(view)) {
+                    view.hide(hideType, false);
                 }
             }
         }

@@ -1,4 +1,4 @@
-import { Component, Node, Prefab, instantiate, isValid, log, warn } from "cc";
+import { Component, Node, Prefab, instantiate, isValid, log, tween, v3, warn } from "cc";
 import { Dispatcher } from "../mgr/DispatcherMgr";
 import { Gui } from "../mgr/GuiMgr";
 import { Res } from "../mgr/ResMgr";
@@ -208,45 +208,75 @@ export class BaseWidget extends Foundation {
     }
 
     /**
-     * 当 Widget 显示的时候调用
-     *
-     * 子类未实现 onShow ，则无动画，直接显示。
-     *
-     * 系统默认情况下，使用 `showType=0` 执行进场动画。
-     *
-     * @example
-     * ```
-     * public onShow(type: number):boolean {
-     *      switch (type) {
-     *          case 0: {
-     *              // 系统默认调用的动画实现
-     *              return true;
-     *          }
-     *          case 1: {
-     *              // 可实现由 showType = 1 指定的动画
-     *              return true;
-     *          }
-     *      }
-     *      // 未实现动画，直接显示
-     *      return false;
-     * }
-     * ```
-     *
-     * @param isCreate 来自于创建
-     * @returns 是否使用特定动画
+     * 显示
+     * @param type <= 0:为系统预制动画类型;其中 0 为无动画，-1 为缩放展示。
+     * @param fromCreate 是否来自与View创建
      */
-    public onShow(type: number, isCreate: boolean): boolean {
-        return false;
+    public show(type: number, fromCreate: boolean) {
+        this.setVisible(true);
+        if (type <= 0) {
+            switch (type) {
+                case -1: {
+                    this.scheduleOnce(() => {
+                        tween(this.node).to(0.2, { scale: v3(1.1, 1.1, 1) }).to(0.1, { scale: v3(1, 1, 1) }).start();
+                    });
+                    break;
+                }
+            }
+            return;
+        }
+        this.onShowAnim(type, fromCreate);
+        return;
     }
 
     /**
-     * 当 Widget 隐藏的时候调用
-     *
-     * @param isDestroy 来自于销毁; 子类需要根据 `isDestroy` 来决定是否执行 `node.destroy()`
-     * @returns 是否使用特定动画
+     * 隐藏
+     * @param type <= 0:为系统预制动画类型
+     * @param needDestroy 是否需要删除
      */
-    public onHide(type: number, isDestroy: boolean): boolean {
-        return false;
+    public hide(type: number, needDestroy: boolean) {
+        if (!this.isVisible()) {
+            this.realHide(needDestroy);
+            return;
+        }
+        if (type <= 0) {
+            switch (type) {
+                case -1: {
+                    tween(this.node).to(0.2, { scale: v3(0.9, 0.9, 1) }).call(() => {
+                        this.realHide(needDestroy);
+                    }).start();
+                    return;
+                }
+            }
+            this.realHide(needDestroy);
+            return;
+        }
+        this.onHideAnim(type, needDestroy);
+        return;
+    }
+
+    protected realHide(needDestroy: boolean) {
+        if (needDestroy) {
+            this.node.destroy();
+        } else {
+            this.setVisible(false);
+        }
+    }
+
+    /**
+     * 当需要重写动画的时候，可以重载此函数
+     * @param type 动画类型
+     * @param fromCreate 当前View的显示是否来自于创建
+     */
+    protected onShowAnim(type: number, fromCreate: boolean) {
+    }
+
+    /**
+     * 当需要重写动画的时候，可以重载此函数
+     * @param type 动画类型
+     * @param needDestroy 当 type > 0，即自定义动画时，需要在动画结束时调用 this.realHide(needDestroy)
+     */
+    protected onHideAnim(type: number, needDestroy: boolean) {
     }
 
     //private
