@@ -1,9 +1,15 @@
-import { Component, IVec2Like, Node, UITransform, Vec3, __private, isValid } from "cc";
+import { Component, IVec2Like, Node, UITransform, Vec3, __private, isValid, v3 } from "cc";
 
 type MixinObj = { [k: string]: string | number };
 
 const Mathround = Math.round;
 const Mathfloor = Math.floor;
+
+interface IRay {
+    spos: Vec3;
+    epos: Vec3;
+    angle?: number;
+}
 
 export class Util {
     public static keyFromWeight(m: { [k: string]: number }): string {
@@ -32,6 +38,66 @@ export class Util {
         return comp;
     }
 
+
+
+    /**
+     * 生成 `count` 个均匀分布的射线
+     * @param spos
+     * @param originAngle
+     * @param count
+     * @param perAngle
+     */
+    public static rays(spos: Readonly<Vec3>, originAngle: number, count: number, perAngle = 10, distance = 100): IRay[] {
+        let startAngle = originAngle - (count - 1) * perAngle / 2;
+        let results: IRay[] = [];
+        for (let i = 0; i < count; ++i) {
+            let angle = startAngle + i * perAngle;
+            let x = spos.x + Math.cos(angle / 180 * Math.PI) * distance,
+                y = spos.y + Math.sin(angle / 180 * Math.PI) * distance;
+            results.push({
+                spos: spos.clone(),
+                epos: v3(x, y),
+                angle
+            });
+        }
+        return results;
+    }
+
+    /**
+     * 生成 `count` 个呈圆形分布的射线
+     * @param spos
+     * @param count
+     * @returns
+     */
+    public static circleRays(spos: Vec3, count: number): IRay[] {
+        const distance = 100;
+        let startAngle = 0;
+        let perAngle = 360 / count;
+        let results: IRay[] = [];
+        for (let i = 0; i < count; ++i) {
+            let angle = startAngle + i * perAngle;
+            let x = spos.x + Math.cos(angle / 180 * Math.PI) * distance,
+                y = spos.y + Math.sin(angle / 180 * Math.PI) * distance;
+            results.push({
+                spos: spos.clone(),
+                epos: v3(x, y),
+                angle
+            });
+        }
+        return results;
+    }
+
+    /**
+     * 预测射线途径点
+     * @param spos
+     * @param originAngle
+     * @param distance
+     */
+    public static predictPathPoint(spos: Readonly<Vec3>, originAngle: number, distance = 100): Vec3 {
+        let x = spos.x + Math.cos(originAngle / 180 * Math.PI) * distance,
+            y = spos.y + Math.sin(originAngle / 180 * Math.PI) * distance;
+        return v3(x, y);
+    }
 
     /**
      * 世界坐标
