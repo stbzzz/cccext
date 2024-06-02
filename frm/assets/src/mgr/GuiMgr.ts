@@ -12,6 +12,8 @@ interface IViewData {
     view: BaseView | null;
     level: number; // 当前 View 所在层级，相同层级的 View，只显示最上层的
     showMaskWhenTop: boolean; // 当前层位于顶端的时候，是否需要显示下层的遮罩
+    defaultShowType: number; // 默认显示动画
+    defaultHideType: number; // 默认关闭动画
 }
 
 interface IPushViewDetail {
@@ -19,7 +21,15 @@ interface IPushViewDetail {
     showMaskWhenTop?: boolean;
     showType?: number;
     hideType?: number;
+    forceHideType?: number;
     suffix?: string;
+}
+
+interface IAnimData {
+    useDefaultShow: boolean;
+    showType: number;
+    useDefaultHide: boolean;
+    hideType: number;
 }
 
 class GuiMgr extends Singleton {
@@ -101,8 +111,8 @@ class GuiMgr extends Singleton {
         detail = detail || {};
         let stacks = typeof detail.stacks === 'undefined' ? false : detail.stacks,
             showMaskWhenTop = typeof detail.showMaskWhenTop === 'undefined' ? true : detail.showMaskWhenTop,
-            showType = typeof detail.showType === 'undefined' ? 0 : detail.showType,
-            hideType = typeof detail.hideType === 'undefined' ? 0 : detail.hideType,
+            defaultShowType = typeof detail.showType === 'undefined' ? 0 : detail.showType,
+            defaultHideType = typeof detail.hideType === 'undefined' ? 0 : detail.hideType,
             suffix = typeof detail.suffix === 'undefined' ? '' : detail.suffix;
 
         let uuid: string;
@@ -123,7 +133,7 @@ class GuiMgr extends Singleton {
             if (viewData.uuid == uuid) return;
         }
         const level = this.getViewLevel(stacks);
-        this._viewDatas.push({ uuid, view: null, level, showMaskWhenTop });
+        this._viewDatas.push({ uuid, view: null, level, showMaskWhenTop, defaultShowType, defaultHideType });
 
         if (typeof path == 'string') {
             this.setLoadingMask(true);
@@ -134,10 +144,10 @@ class GuiMgr extends Singleton {
                     return;
                 }
                 log(`[Gui.pushView] ${path} success!`);
-                this.createView(prefab!, data, showType, hideType, suffix);
+                this.createView(prefab!, data, detail.forceHideType, suffix);
             });
         } else {
-            this.createView(path, data, showType, hideType, suffix);
+            this.createView(path, data, detail.forceHideType, suffix);
         }
     }
 
@@ -147,9 +157,11 @@ class GuiMgr extends Singleton {
      * `>0`: 自上而下，弹出 |n| 层
      *
      * `<0`: 自下而上，保留 |n| 层
-     * @param depth
+     * @param n
+     * @param forceShowType 当弹出后，显示的在最上层的View显示动画类型
+     * @param forceHideType 当前pop出的弹框隐藏动画类型
      */
-    public popView(n = 1, showType = 0, hideType = 0) {
+    public popView(n = 1, forceShowType?: number, forceHideType?: number) {
         const len = this._viewDatas.length;
         if (len === 0) return;
         if (-n >= len) return;
@@ -162,14 +174,16 @@ class GuiMgr extends Singleton {
         }
 
         // 弹出
-        this._popViews(popStartIndex, showType, hideType);
+        this._popViews(popStartIndex, forceShowType, forceHideType);
     }
 
     /**
      * 将 uuid 对应的 View 上面的所有 View 弹出，如果找不到则不操作。
      * @param uuid
+     * @param forceShowType 当弹出后，显示的在最上层的View显示动画类型
+     * @param forceHideType 当前pop出的弹框隐藏动画类型
      */
-    public popViewUntil(uuid: string, showType = 0, hideType = 0) {
+    public popViewUntil(uuid: string, forceShowType?: number, forceHideType?: number) {
         const len = this._viewDatas.length;
         if (len === 0) return;
         let popStartIndex = len;
@@ -183,15 +197,15 @@ class GuiMgr extends Singleton {
         if (popStartIndex >= len) return;
 
         // 弹出
-        this._popViews(popStartIndex, showType, hideType);
+        this._popViews(popStartIndex, forceShowType, forceHideType);
     }
 
     /**
      * 弹出最上层 View level 对应的所有 View
-     * @param showType
-     * @param hideType
+     * @param forceShowType 当弹出后，显示的在最上层的View显示动画类型
+     * @param forceHideType 当前pop出的弹框隐藏动画类型
      */
-    public popViewIfTopLevel(showType = 0, hideType = 0) {
+    public popViewIfTopLevel(forceShowType?: number, forceHideType?: number) {
         const len = this._viewDatas.length;
         if (len === 0) return;
         const level = this._viewDatas[len - 1].level;
@@ -201,15 +215,19 @@ class GuiMgr extends Singleton {
                 n++;
             } else break;
         }
-        this.popView(n, showType, hideType);
+
+        // 弹出
+        this._popViews(n, forceShowType, forceHideType);
     }
 
     /**
      * 删除 View
      * @param uuid
+     * @param forceShowType 当弹出后，显示的在最上层的View显示动画类型
+     * @param forceHideType 当前pop出的弹框隐藏动画类型
      * @returns
      */
-    public removeView(uuid: string, showType = 0, hideType = 0) {
+    public removeView(uuid: string, forceShowType?: number, forceHideType?: number) {
         const len = this._viewDatas.length;
         if (len === 0) return;
         let removeIndex = len;
@@ -221,12 +239,14 @@ class GuiMgr extends Singleton {
             }
         }
         if (removeIndex == len - 1) {
-            this._popViews(len - 1, showType, hideType);
+            this._popViews(len - 1, forceShowType, forceHideType);
             return;
         }
 
         if (removeIndex >= len) return;
 
+        let useDefaultHide = typeof forceHideType === 'undefined';
+        let hideType = !useDefaultHide ? forceHideType! : 0;
         // 弹出
         for (let i = len - 2; i >= 0; --i) {
             if (removeIndex == i) {
@@ -234,9 +254,9 @@ class GuiMgr extends Singleton {
                 this._viewDatas.splice(i, 1);
                 const view = viewData.view!;
                 if (isValid(view)) {
-                    view.hide(hideType, true);
+                    view.hide(useDefaultHide ? viewData.defaultHideType : hideType, true);
                 }
-                this.checkLevel(false, showType, hideType);
+                this.checkLevel(false, forceShowType, forceHideType);
                 break;
             }
         }
@@ -308,7 +328,7 @@ class GuiMgr extends Singleton {
         });
     }
 
-    private createView(prefab: Prefab, data: any, showType: number, hideType: number, suffix: string) {
+    private createView(prefab: Prefab, data: any, forceHideType: number | undefined, suffix: string) {
         const uuid = suffix != '' ? `${prefab.name}_${suffix}` : prefab.name;
         // 检测是否在栈里
         if (this._viewDatas.findIndex(v => v.uuid == uuid) === -1) {
@@ -325,18 +345,24 @@ class GuiMgr extends Singleton {
         root.addChild(node);
 
         // bind view
+        let showType = 0, hideType = 0;
         for (let i = this._viewDatas.length - 1; i >= 0; --i) {
             const viewData = this._viewDatas[i];
             if (viewData.uuid == uuid) {
                 viewData.view = viewComp;
+                showType = viewData.defaultShowType;
+                hideType = viewData.defaultHideType;
                 break;
             }
         }
         // show status
-        this.checkLevel(true, showType, hideType);
+        this.checkLevel(true, showType, forceHideType);
     }
 
-    private _popViews(startIndex: number, showType: number, hideType: number) {
+    private _popViews(startIndex: number, forceShowType?: number, forceHideType?: number) {
+        let useDefaultHide = typeof forceHideType === 'undefined';
+        let hideType = !useDefaultHide ? forceHideType! : 0;
+
         const len = this._viewDatas.length;
         if (startIndex >= len) return;
 
@@ -347,15 +373,20 @@ class GuiMgr extends Singleton {
                 this._viewDatas.splice(i, 1);
                 const view = viewData.view!;
                 if (isValid(view)) {
-                    view.hide(hideType, true);
+                    view.hide(useDefaultHide ? viewData.defaultHideType : hideType, true);
                 }
             } else break;
         }
 
-        this.checkLevel(false, showType, hideType);
+        this.checkLevel(false, forceShowType, forceHideType);
     }
 
-    private checkLevel(fromCreate: boolean, showType: number, hideType: number) {
+    private checkLevel(fromCreate: boolean, forceShowType?: number, forceHideType?: number) {
+        let useDefaultShow = typeof forceShowType === 'undefined';
+        let showType = !useDefaultShow ? forceShowType! : 0;
+        let useDefaultHide = typeof forceHideType === 'undefined';
+        let hideType = !useDefaultHide ? forceHideType! : 0;
+
         let topIndex = this._viewDatas.length - 1;
         if (topIndex < 0) {
             if (isValid(this._viewMask)) {
@@ -366,7 +397,7 @@ class GuiMgr extends Singleton {
         const topViewData = this._viewDatas[topIndex];
         const topView = topViewData.view!;
         if (isValid(topView) && !topView.isVisible()) {
-            topView.show(showType, fromCreate);
+            topView.show(useDefaultShow ? topViewData.defaultShowType : showType, fromCreate);
         }
         // mask
         if (topViewData.showMaskWhenTop) {
@@ -387,11 +418,11 @@ class GuiMgr extends Singleton {
             if (level != viewData.level) {
                 level = viewData.level;
                 if (isValid(view) && !view.isVisible()) {
-                    view.show(showType, false);
+                    view.show(useDefaultShow ? viewData.defaultShowType : showType, false);
                 }
             } else {
                 if (isValid(view)) {
-                    view.hide(hideType, false);
+                    view.hide(useDefaultHide ? viewData.defaultHideType : hideType, false);
                 }
             }
         }

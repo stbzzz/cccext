@@ -242,7 +242,7 @@ export class BaseWidget extends Foundation {
         if (type <= 0) {
             switch (type) {
                 case -1: {
-                    tween(this.node).to(0.2, { scale: v3(0.9, 0.9, 1) }).call(() => {
+                    tween(this.node).to(0.1, { scale: v3(0.8, 0.8, 1) }).call(() => {
                         this.realHide(needDestroy);
                     }).start();
                     return;
