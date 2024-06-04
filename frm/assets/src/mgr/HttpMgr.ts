@@ -230,10 +230,8 @@ class HttpMgr extends Singleton {
                 let fmtStr = Util.fmtDate('HH:MM:SS', Math.floor(startStampMS / 1000)) + `.${startStampMS % 1000}`;
                 log('_________________________________________');
                 log(`[HTTP ${method}] ${path} ${fmtStr}-${duration / 1000}`);
-                log('param:', param);
-                if (post) {
-                    log('client:', post);
-                }
+                param && log('param:', param);
+                post && log('client:', post);
                 log('response:', data.ok ? data.data : { code: data.code, msg: data.msg });
 
                 // 成功返回，且注册回调
