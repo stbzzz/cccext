@@ -191,6 +191,7 @@ export namespace frm {
 
         public get ok(): boolean { return this._code == InnerCode.OK; }
 
+        public get code(): number { return this._code; }
         public set code(code: number) { this._code = code; }
 
         public get data(): T | null { return this._data; }

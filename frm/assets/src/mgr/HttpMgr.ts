@@ -176,7 +176,7 @@ class Request {
             this._entity.msg = msg;
             this._entity.code = code;
             this._entity.data = data;
-            if (this._responseCallback) this._responseCallback(this._entity);
+            this._responseCallback && this._responseCallback(this._entity);
         }
 
         // 重试
@@ -193,8 +193,6 @@ class Request {
         res(code, msg, data);
     }
 }
-
-type TDriverFunction = (data: any, post: frm.IPostData) => void;
 
 class HttpMgr extends Singleton {
 
@@ -233,9 +231,10 @@ class HttpMgr extends Singleton {
                 log('_________________________________________');
                 log(`[HTTP ${method}] ${path} ${fmtStr}-${duration / 1000}`);
                 log('param:', param);
-                log('client:', post);
-                log('response:', data.data);
-                log('-----------------------------------------');
+                if (post) {
+                    log('client:', post);
+                }
+                log('response:', data.ok ? data.data : { code: data.code, msg: data.msg });
 
                 // 成功返回，且注册回调
                 if (data.ok && data.post && data.post._cbname) {
