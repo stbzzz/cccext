@@ -138,6 +138,7 @@ exports.methods = {
         }
     },
     checkCommonDep() {
+        commonDep = {};
         checkAssets('cc.Prefab', true);
         checkAssets('cc.SceneAsset', true);
     },
