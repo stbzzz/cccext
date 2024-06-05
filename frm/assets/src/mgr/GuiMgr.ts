@@ -263,6 +263,22 @@ class GuiMgr extends Singleton {
     }
 
     /**
+     * 查找View
+     * @param uuid
+     * @returns
+     */
+    public findView<T extends BaseView>(uuid: string): T | null {
+        const len = this._viewDatas.length;
+        for (let i = len - 1; i >= 0; --i) {
+            const viewData = this._viewDatas[i];
+            if (viewData.uuid === uuid) {
+                return viewData.view as T;
+            }
+        }
+        return null;
+    }
+
+    /**
      * 处理网络消息
      * @param prefix
      * @param funcname
