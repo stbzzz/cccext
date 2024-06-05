@@ -9,7 +9,19 @@
         "typescript": "^4.3.4"
     },
     "contributions": {
+        "menu": [
+            {
+                "path": "i18n:menu.extension",
+                "label": "Check Common Dep",
+                "message": "checkCommonDep"
+            }
+        ],
         "messages": {
+            "checkCommonDep": {
+                "methods": [
+                    "checkCommonDep"
+                ]
+            },
             "asset-db:asset-change": {
                 "methods": [
                     "onAssetChange"

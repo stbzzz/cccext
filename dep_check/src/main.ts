@@ -113,11 +113,12 @@ export const methods: { [key: string]: (...any: any) => any } = {
             case 'cc.Prefab':
             case 'cc.SceneAsset': {
                 checkAssets(t);
-                savePrefabToBundleInfo();
+                // savePrefabToBundleInfo();
                 break;
             }
         }
     },
+    log() { console.log('Hello World') },
 };
 
 /**

@@ -11,6 +11,9 @@ let getBundleNameByUrl = (url) => {
     }
     return "unknown_bundle";
 };
+
+let commonDep = {};
+
 let checkSpriteFrameRefs = (fullpath, url) => {
     const currBundleName = getBundleNameByUrl(url);
     // read prefab file
@@ -25,16 +28,24 @@ let checkSpriteFrameRefs = (fullpath, url) => {
                 const uuid = dep['_spriteFrame']['__uuid__'];
                 let depSpriteFrameUrl = await Editor.Message.request('asset-db', 'query-url', uuid);
                 let depSpriteFrameBundleName = getBundleNameByUrl(depSpriteFrameUrl);
-                if (depSpriteFrameBundleName == "unknown_bundle" || depSpriteFrameBundleName == "common") {
+                if (depSpriteFrameBundleName == "unknown_bundle") {
                     continue;
                 }
+
                 if (depSpriteFrameBundleName != currBundleName) {
                     let ref = depSpriteFrameUrl.substring(depSpriteFrameUrl.indexOf(depSpriteFrameBundleName));
                     let refArr = ref.split("@");
                     if (refArr.length > 0) {
                         ref = refArr[0];
                     }
-                    console.error(`【跨包引用】${url.substring(url.indexOf(currBundleName))} 引用了 ${ref}`);
+                    if (depSpriteFrameBundleName == 'common') {
+                        if (!commonDep[ref]) {
+                            commonDep[ref] = new Map();
+                        }
+                        commonDep[ref].set(currBundleName, url.substring(url.indexOf(currBundleName)));
+                    } else {
+                        console.error(`【跨包引用】${url.substring(url.indexOf(currBundleName))} 引用了 ${ref}`);
+                    }
                 }
             }
         }
@@ -42,12 +53,25 @@ let checkSpriteFrameRefs = (fullpath, url) => {
 };
 // scene: cc.SceneAsset
 // prefab: cc.Prefab
-let checkAssets = (type) => {
+let checkAssets = (type, printCommon) => {
     Editor.Message.request('asset-db', 'query-assets', { pattern: "db://assets/bundles/**" }).then(list => {
         for (let k in list) {
             let v = list[k];
             if (v.type == type) {
                 checkSpriteFrameRefs(v.file, v.url);
+            }
+        }
+
+        if (printCommon) {
+            for (let k in commonDep) {
+                let m = commonDep[k];
+                if (m.size == 1) {
+                    let v;
+                    m.forEach(_v => {
+                        v = _v;
+                    });
+                    console.warn(`${k} 被 ${v} 引用`);
+                }
             }
         }
     }, (reason) => {
@@ -106,11 +130,16 @@ exports.methods = {
         switch (t) {
             case 'cc.Prefab':
             case 'cc.SceneAsset': {
-                checkAssets(t);
-                savePrefabToBundleInfo();
+                checkAssets('cc.Prefab', false);
+                checkAssets('cc.SceneAsset', false);
+                // savePrefabToBundleInfo();
                 break;
             }
         }
+    },
+    checkCommonDep() {
+        checkAssets('cc.Prefab', true);
+        checkAssets('cc.SceneAsset', true);
     },
 };
 /**
