@@ -10,6 +10,10 @@ export class Closeable extends Component {
         this._suffix_$abc = suffix;
     }
 
+    public setClickCloseCb(cb: Function) {
+        this._clickCloseCb_$abc = cb;
+    }
+
     /**
      * 关闭 view
      *
@@ -26,9 +30,11 @@ export class Closeable extends Component {
             }
         }
         Gui.removeView(uuid, showType, hideType);
+        this._clickCloseCb_$abc && this._clickCloseCb_$abc();
     }
 
     //private
     private _suffix_$abc: string = '';
+    private _clickCloseCb_$abc: Function | null = null;
 
 }

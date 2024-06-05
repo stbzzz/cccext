@@ -147,6 +147,7 @@ class GuiMgr extends Singleton {
                 this.createView(prefab!, data, detail.forceHideType, suffix);
             });
         } else {
+            log(`[Gui.pushView] ${path.name} success!`);
             this.createView(path, data, detail.forceHideType, suffix);
         }
     }
