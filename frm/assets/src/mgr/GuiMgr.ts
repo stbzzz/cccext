@@ -265,6 +265,7 @@ class GuiMgr extends Singleton {
 
     /**
      * 查找View
+     * 当pushView之后，并不一定能立即查到（可能正在加载）
      * @param uuid
      * @returns
      */
@@ -277,6 +278,22 @@ class GuiMgr extends Singleton {
             }
         }
         return null;
+    }
+
+    /**
+     * 是否已经注册了View
+     * @param uuid
+     * @returns
+     */
+    public hasRegView(uuid: string): boolean {
+        const len = this._viewDatas.length;
+        for (let i = len - 1; i >= 0; --i) {
+            const viewData = this._viewDatas[i];
+            if (viewData.uuid === uuid) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
