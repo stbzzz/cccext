@@ -10,6 +10,10 @@ export class BlankCloseable extends Component {
     @property(Node)
     private bgRect: Node = null!;
 
+    public setLock(locked: boolean) {
+        this._isLock = locked;
+    }
+
     protected onLoad(): void {
         this._closeable = this.getComponent(Closeable)!;
     }
@@ -23,6 +27,7 @@ export class BlankCloseable extends Component {
     }
 
     private onTouchEnd(touch: Touch) {
+        if (this._isLock) return;
         if (!this.checkInside(touch.getUILocation())) {
             this._closeable.onClickClose(null, '0_0');
         }
@@ -41,5 +46,6 @@ export class BlankCloseable extends Component {
     //private
     private _closeable: Closeable = null!;
     private _bgRectPosition: Vec3 = v3(0, 0, 0);
+    private _isLock = false;
 
 }

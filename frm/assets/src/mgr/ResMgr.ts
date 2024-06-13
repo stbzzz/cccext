@@ -289,7 +289,7 @@ class ResMgr extends Singleton {
      * @param name 分包名称
      * @returns
      */
-    private loadBundle(name: string): Promise<AssetManager.Bundle> {
+    public loadBundle(name: string): Promise<AssetManager.Bundle> {
         let bundle = assetManager.getBundle(name);
         if (bundle) return Promise.resolve(bundle);
         return new Promise((res, rej) => {
