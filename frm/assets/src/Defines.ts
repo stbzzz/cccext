@@ -142,6 +142,7 @@ export namespace frm {
     /////////////////////////////////////////////
     // 网络请求
     /////////////////////////////////////////////
+    export type TRetryFunc = (code: number, cancelFunc: () => void, confirmFunc: () => void) => void;
     /**
      * 内部报错码
      */
@@ -168,7 +169,8 @@ export namespace frm {
         /**请求是否需要鉴权 */
         _needauth?: boolean;
         /**重试处理函数 */
-        _retryfunc?: (code: number, cancelFunc: () => void, confirmFunc: () => void) => void;
+        _retryfunc?: TRetryFunc;
+        _ignoreRetryFunc?: boolean;
         /**其他需要回传字段 */
         [k: string]: any;
     }

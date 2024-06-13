@@ -8,8 +8,8 @@ export class BaseView extends BaseWidget {
         this.getComponent(Closeable)?.setClickCloseCb(this._onClickedClose.bind(this));
     }
 
-    protected _closeView() {
-        this.getComponent(Closeable)?.onClickClose(void 0, "");
+    protected _closeView(showType?: number, hideType?: number) {
+        this.getComponent(Closeable)?.closeView(showType, hideType);
     }
 
     /**

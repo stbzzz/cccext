@@ -25,7 +25,8 @@ class Request {
     private _path!: string;
     private _param: any;
     private _method!: string;
-    private _retryfunc: null | ((code: number, cancelFunc: () => void, confirmFunc: () => void) => void) = null;
+    private _retryfunc: null | frm.TRetryFunc = null;
+    private _ignoreRetryFunc = false;
     private _responseCallback: null | ((data: frm.RecvDataEntity) => void) = null;
     private _timeout!: number;//毫秒
     private _autoretry!: number;
@@ -50,13 +51,17 @@ class Request {
 
         // 初始化参数
         this._method = post._method || 'POST';
-        this._timeout = post._timeout || 10000;
-        this._autoretry = post._autoretry || 0;
+        this._timeout = post._timeout || Http.getTimeout();
+        this._autoretry = post._autoretry || Http.getAutoretryCount();
         if (post.hasOwnProperty('_needauth')) {
             this._needauth = post._needauth!;
+        } else {
+            this._needauth = true;
         }
         if (post.hasOwnProperty('_needmask')) {
             this._needmask = post._needmask!;
+        } else {
+            this._needmask = true;
         }
 
         // 保留向服务器发送的参数
@@ -70,7 +75,12 @@ class Request {
             this._entity = new frm.RecvDataEntity(post);
         }
 
-        this._retryfunc = post._retryfunc || null;
+        this._ignoreRetryFunc = post._ignoreRetryFunc || false;
+        if (!this._ignoreRetryFunc) {
+            this._retryfunc = post._retryfunc || Http.getRetryFunc();
+        } else {
+            this._retryfunc = null;
+        }
 
         // 重置数据
         this._responseCallback = null;
@@ -96,8 +106,8 @@ class Request {
         // 超时
         let timer = setTimeout(() => {
             isTimeout = true;
-            xhr.abort();
             this._setResponse(frm.InnerCode.TIMEOUT, '请求超时');
+            xhr.abort();
         }, timeout);
 
         xhr.onreadystatechange = () => {
@@ -210,6 +220,30 @@ class HttpMgr extends Singleton {
         return sys.localStorage.getItem(Key_StorageGameToken) || '';
     }
 
+    public setTimeout(timeout: number) {
+        this._timeout = timeout;
+    }
+
+    public getTimeout(): number {
+        return this._timeout;
+    }
+
+    public setAutoretryCount(count: number) {
+        this._autoretryCount = count;
+    }
+
+    public getAutoretryCount(): number {
+        return this._autoretryCount;
+    }
+
+    public setRetryFunc(func: frm.TRetryFunc) {
+        this._retryfunc = func;
+    }
+
+    public getRetryFunc(): frm.TRetryFunc | null {
+        return this._retryfunc;
+    }
+
     /**
      * 请求
      * @param path 请求路径
@@ -258,6 +292,9 @@ class HttpMgr extends Singleton {
     private _url: string = "";
     private _gameToken: string = "";
     private _requestCache: Request[] = [];
+    private _timeout = 3000;
+    private _autoretryCount = 0;
+    private _retryfunc: frm.TRetryFunc | null = null;
 
 }
 export const Http = HttpMgr.getInstance() as HttpMgr;

@@ -20,6 +20,23 @@ class ResMgr extends Singleton {
     }
 
     /**
+     * 加载远程json，这个接口不会reject。需要判断返回值是否为空
+     * @param url
+     * @returns
+     */
+    public loadRemoteJson(url: string): Promise<Record<string, any> | null> {
+        return new Promise((res, rej) => {
+            assetManager.loadRemote<JsonAsset>(url, (err, asset) => {
+                if (err) {
+                    error(err);
+                    return res(null);
+                }
+                res(asset.json);
+            });
+        });
+    }
+
+    /**
     * 加载远程图片
     * @param target
     * @param url

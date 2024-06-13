@@ -26,6 +26,10 @@ class CfgMgr extends Singleton {
         }
     }
 
+    public setJson(name: string, data: any) {
+        this._jsons[name] = data;
+    }
+
     //private
     private _jsons: { [name: string]: any } = {};
 }

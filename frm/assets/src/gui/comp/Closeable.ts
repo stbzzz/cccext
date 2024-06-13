@@ -20,7 +20,6 @@ export class Closeable extends Component {
      * 可绑定点击回调，通过传参 eventData: showType_hideType => 0_0 设置关闭动画
      */
     public onClickClose(_: any, cmd: string) {
-        const uuid = this._suffix_$abc != '' ? `${this.node.name}_${this._suffix_$abc}` : this.node.name;
         let showType: number | undefined, hideType: number | undefined;
         if (cmd) {
             const cmdArr = cmd.split('_');
@@ -29,8 +28,13 @@ export class Closeable extends Component {
                 hideType = +cmdArr[1];
             }
         }
-        Gui.removeView(uuid, showType, hideType);
+        this.closeView(showType, hideType);
         this._clickCloseCb_$abc && this._clickCloseCb_$abc();
+    }
+
+    public closeView(showType?: number, hideType?: number) {
+        const uuid = this._suffix_$abc != '' ? `${this.node.name}_${this._suffix_$abc}` : this.node.name;
+        Gui.removeView(uuid, showType, hideType);
     }
 
     //private
