@@ -260,22 +260,17 @@ class ResMgr extends Singleton {
      * 释放当前场景手动加载且标记为 `autorelease=true` 的所有资源
      */
     private releaseManualLoaded() {
-        for (let k in this._loadedAssets) {
-            let loadedAsset = this._loadedAssets.get(k);
-            if (loadedAsset) {
-                if (loadedAsset.autorelease) {
-                    if (isValid(loadedAsset.asset)) {
-                        if (DEBUG) {
-                            console.log(`[releaseManualLoaded] ref:${loadedAsset.asset.refCount} `, k, ': ', loadedAsset.asset);
-                        }
-                        loadedAsset.asset.decRef();
+        this._loadedAssets.forEach(loadedAsset => {
+            if (loadedAsset.autorelease) {
+                if (isValid(loadedAsset.asset)) {
+                    if (DEBUG) {
+                        console.log(`[releaseManualLoaded] ${loadedAsset.path} refCount = ${loadedAsset.asset.refCount}`);
                     }
-                    this._loadedAssets.delete(k);
+                    loadedAsset.asset.decRef();
                 }
-            } else {
-                this._loadedAssets.delete(k);
+                this._loadedAssets.delete(loadedAsset.path);
             }
-        }
+        });
     }
 
     /**

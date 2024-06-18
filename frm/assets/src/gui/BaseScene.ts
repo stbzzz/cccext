@@ -85,6 +85,7 @@ export class BaseScene extends Foundation {
      * 继承自 Component，子类覆写需要调用 `super.onDestroy();`
      */
     protected onDestroy(): void {
+        super.onDestroy();
         Gui.clear();
         Res.clear();
     }
