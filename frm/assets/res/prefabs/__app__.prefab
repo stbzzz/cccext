@@ -25,10 +25,13 @@
       },
       {
         "__id__": 4
+      },
+      {
+        "__id__": 6
       }
     ],
     "_prefab": {
-      "__id__": 6
+      "__id__": 8
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -88,7 +91,7 @@
     "fileId": "33xQ0O9IhN0LLvZEs9QRnR"
   },
   {
-    "__type__": "d1d5c6OnR1Jl6mJxM1VJOUt",
+    "__type__": "cc.AudioSource",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -98,6 +101,28 @@
     "_enabled": true,
     "__prefab": {
       "__id__": 5
+    },
+    "_clip": null,
+    "_loop": false,
+    "_playOnAwake": true,
+    "_volume": 1,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "04dsWTXRpAjYbX0aw6X3fb"
+  },
+  {
+    "__type__": "d1d5c6OnR1Jl6mJxM1VJOUt",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 7
     },
     "gameConfigJson": null,
     "toastPrefab": {

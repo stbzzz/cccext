@@ -1,4 +1,4 @@
-import { Component, JsonAsset, Prefab, _decorator, director } from "cc";
+import { AudioSource, Component, JsonAsset, Node, Prefab, _decorator, director } from "cc";
 import { Timer } from "./mgr/TimerMgr";
 
 const { ccclass, property } = _decorator;
@@ -24,6 +24,14 @@ export class PreloadRes extends Component {
 
     protected onLoad(): void {
         director.addPersistRootNode(this.node);
+        let musicAudioSourceNode = new Node('MusicAudioSource');
+        musicAudioSourceNode.addComponent(AudioSource);
+        director.addPersistRootNode(musicAudioSourceNode);
+        this.node.addChild(musicAudioSourceNode);
+        let effectAudioSourceNode = new Node('EffectAudioSource');
+        effectAudioSourceNode.addComponent(AudioSource);
+        director.addPersistRootNode(effectAudioSourceNode);
+        this.node.addChild(effectAudioSourceNode);
     }
 
     protected update(dt: number): void {

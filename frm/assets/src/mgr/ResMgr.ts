@@ -1,4 +1,5 @@
-import { Asset, AssetManager, ImageAsset, JsonAsset, Node, Prefab, Sprite, SpriteFrame, Texture2D, Widget, __private, assetManager, director, error, find, isValid, sp, warn } from "cc";
+import { Asset, AssetManager, AudioClip, ImageAsset, JsonAsset, Node, Prefab, Sprite, SpriteFrame, Texture2D, Widget, __private, assetManager, director, error, find, isValid, sp, warn } from "cc";
+import { DEBUG } from "cc/env";
 import { frm } from "../Defines";
 import { PreloadRes } from "../PreloadRes";
 import { BaseScene } from "../gui/BaseScene";
@@ -174,6 +175,24 @@ class ResMgr extends Singleton {
     }
 
     /**
+     * 加载音频
+     * @param path
+     * @param onComplete
+     * @param autorelease
+     * @returns
+     */
+    public loadAudio(path: string, onComplete?: (err: Error | null, asset: AudioClip | null) => void, autorelease = true) {
+        const pathArr = path.split('/');
+        const len = pathArr.length;
+        if (len < 2) {
+            warn('[Res.loadSpine] invalid path: ', path);
+            return;
+        }
+        const bundlename = pathArr[0];
+        this.manualLoadAny(bundlename, pathArr.slice(1).join('/'), AudioClip, onComplete, autorelease);
+    }
+
+    /**
      * 加载预制体
      * @param path 预制体路径
      * @param onComplete 加载完成回调
@@ -246,6 +265,9 @@ class ResMgr extends Singleton {
             if (loadedAsset) {
                 if (loadedAsset.autorelease) {
                     if (isValid(loadedAsset.asset)) {
+                        if (DEBUG) {
+                            console.log(`[releaseManualLoaded] ref:${loadedAsset.asset.refCount} `, k, ': ', loadedAsset.asset);
+                        }
                         loadedAsset.asset.decRef();
                     }
                     this._loadedAssets.delete(k);
