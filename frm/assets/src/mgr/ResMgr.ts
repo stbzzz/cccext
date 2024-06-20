@@ -260,6 +260,8 @@ class ResMgr extends Singleton {
      * 释放当前场景手动加载且标记为 `autorelease=true` 的所有资源
      */
     private releaseManualLoaded() {
+        // @FIXME
+        if (1 == 1) return;
         this._loadedAssets.forEach(loadedAsset => {
             if (loadedAsset.autorelease) {
                 if (isValid(loadedAsset.asset)) {
@@ -294,7 +296,8 @@ class ResMgr extends Singleton {
                     if (err) return onComplete && onComplete(err, null);
                     if (!this._loadedAssets.get(path)) {
                         this._loadedAssets.set(path, { path, asset, autorelease });
-                        asset.addRef();
+                        // @FIXME
+                        // asset.addRef();
                         if (DEBUG) {
                             console.log(`%c[manualLoadAny] ${type.name} ${path} refCount = ${asset.refCount}`, 'color:#9e315e;');
                         }
