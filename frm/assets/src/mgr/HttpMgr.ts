@@ -193,6 +193,7 @@ class Request {
         if (!success && this._retryfunc) {
             this._retryfunc(code, () => {
                 res(code, msg, data);
+                Gui.toast(msg);
             }, () => {
                 this._retry();
             });

@@ -20,7 +20,7 @@ export class App extends Component {
         const preloadRes = this.getComponent(PreloadRes)!;
         const gameConfig = preloadRes.gameConfigJson.json as frm.IGameConfig;
 
-        if (this.mode == frm.Mode.Release || this.mode == frm.Mode.Debug) {
+        if (this.mode == frm.Mode.Release) {
             profiler.hideStats();
         } else {
             profiler.showStats();
