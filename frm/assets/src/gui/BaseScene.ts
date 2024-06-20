@@ -3,7 +3,7 @@ import { Gui } from "../mgr/GuiMgr";
 import { Res } from "../mgr/ResMgr";
 import { Foundation } from "./Foundation";
 import { UniqueView } from "./UniqueView";
-const { requireComponent } = _decorator;
+const { requireComponent, ccclass } = _decorator;
 
 interface IUniqueViewDetail {
     parent?: Node;
@@ -16,8 +16,16 @@ interface IUniqueViewData {
     view: UniqueView | null;
 }
 
+@ccclass('BaseScene')
 @requireComponent(Canvas)
 export class BaseScene extends Foundation {
+
+    public get uniqueView(): UniqueView | null {
+        if (this._uniqueViewData && isValid(this._uniqueViewData.view)) {
+            return this._uniqueViewData.view;
+        }
+        return null;
+    }
 
     /**
      * 设置UniqueView

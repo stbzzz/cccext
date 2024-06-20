@@ -315,9 +315,13 @@ class GuiMgr extends Singleton {
         // scene
         let scene = director.getScene()!.getChildByName('Canvas')!.getComponent('BaseScene');
         if (scene) {
-            const comp = scene as any;
-            const func = comp[`${prefix}_${funcname}`];
-            if (func) func.apply(comp, [...msg]);
+            const sceneComp = scene as any;
+            const sceneFunc = sceneComp[`${prefix}_${funcname}`];
+            if (sceneFunc) sceneFunc.apply(sceneComp, [...msg]);
+            if (sceneComp && sceneComp.uniqueView) {
+                const uniqueViewFunc = sceneComp.uniqueView[`${prefix}_${funcname}`];
+                uniqueViewFunc && uniqueViewFunc.apply(sceneComp.uniqueView, [...msg]);
+            }
         }
     }
 
