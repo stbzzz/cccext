@@ -264,7 +264,7 @@ class ResMgr extends Singleton {
             if (loadedAsset.autorelease) {
                 if (isValid(loadedAsset.asset)) {
                     if (DEBUG) {
-                        console.log(`[releaseManualLoaded] ${loadedAsset.path} refCount = ${loadedAsset.asset.refCount}`);
+                        console.log(`%c[releaseManualLoaded] ${loadedAsset.path} refCount = ${loadedAsset.asset.refCount}`, 'color:#9e315e;');
                     }
                     loadedAsset.asset.decRef();
                 }
@@ -295,6 +295,9 @@ class ResMgr extends Singleton {
                     if (!this._loadedAssets.get(path)) {
                         this._loadedAssets.set(path, { path, asset, autorelease });
                         asset.addRef();
+                        if (DEBUG) {
+                            console.log(`%c[manualLoadAny] ${type.name} ${path} refCount = ${asset.refCount}`, 'color:#9e315e;');
+                        }
                     }
                     onComplete && onComplete(null, asset);
                 });
