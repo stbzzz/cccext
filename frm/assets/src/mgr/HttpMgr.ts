@@ -207,6 +207,14 @@ class Request {
 
 class HttpMgr extends Singleton {
 
+    public setUserData(key: string, val: string) {
+        this._userData.set(key, val);
+    }
+
+    public getUserData(key: string): string {
+        return this._userData.get(key) || '';
+    }
+
     public init(httpUrl: string) {
         this._url = httpUrl;
     }
@@ -296,6 +304,7 @@ class HttpMgr extends Singleton {
     private _timeout = 3000;
     private _autoretryCount = 0;
     private _retryfunc: frm.TRetryFunc | null = null;
+    private _userData = new Map<string, string>();
 
 }
 export const Http = HttpMgr.getInstance() as HttpMgr;

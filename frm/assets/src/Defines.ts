@@ -31,7 +31,6 @@ export namespace frm {
      * 游戏配置
      */
     export interface IGameConfig {
-        version: string;
         servers: { [mode: string]: IServerConfig };
     }
 

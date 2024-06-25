@@ -25,9 +25,6 @@ export class App extends Component {
         } else {
             profiler.showStats();
         }
-
-        console.log(`Game ver: ${gameConfig.version}, mode: ${frm.Mode[this.mode]}`);
-
         this.onCreate(gameConfig);
     }
 
