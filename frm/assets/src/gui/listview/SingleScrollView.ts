@@ -118,7 +118,6 @@ export class SingleScrollView extends Component {
     /**
      * 设置列表
      * @param sourceData 数据
-     * @param cb (last: Node, curr: Node, data: ListView.Data, clickTarget: any, clickCmd: string)
      */
     public setList(sourceData: any[]) {
         this._sourceData = sourceData;
