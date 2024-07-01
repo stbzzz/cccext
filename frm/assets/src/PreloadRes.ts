@@ -1,13 +1,10 @@
-import { AudioSource, Component, JsonAsset, Node, Prefab, _decorator, director } from "cc";
+import { AudioSource, Component, Node, Prefab, _decorator, director } from "cc";
 import { Timer } from "./mgr/TimerMgr";
 
 const { ccclass, property } = _decorator;
 
 @ccclass('PreloadRes')
 export class PreloadRes extends Component {
-
-    @property(JsonAsset)
-    public gameConfigJson: JsonAsset = null!;
 
     @property(Prefab)
     public toastPrefab: Prefab = null!;

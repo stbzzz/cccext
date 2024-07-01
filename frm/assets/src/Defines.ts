@@ -13,27 +13,6 @@ export namespace frm {
         LayerMap.Toast,
     ];
 
-    /**
-     * 发布类型
-     */
-    export enum Mode {
-        Dev = 1,
-        Debug = 2,
-        Release = 3,
-    }
-
-    interface IServerConfig {
-        ws?: string;
-        http?: string;
-    }
-
-    /**
-     * 游戏配置
-     */
-    export interface IGameConfig {
-        servers: { [mode: string]: IServerConfig };
-    }
-
     /////////////////////////////////////////////
     // ListView
     /////////////////////////////////////////////

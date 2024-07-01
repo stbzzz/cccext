@@ -1,8 +1,8 @@
-import { frm } from "../Defines";
+import { DEBUG } from "cc/env";
 
 export class LogMgr {
-    public install(mode: frm.Mode) {
-        if (mode != frm.Mode.Release) {
+    public install() {
+        if (DEBUG) {
             this.i = console.log.bind(console);
             this.w = console.warn.bind(console);
             this.e = console.error.bind(console);
