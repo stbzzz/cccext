@@ -82,6 +82,26 @@ class ResMgr extends Singleton {
     }
 
     /**
+     * 是否在某个场景下
+     * @param classConstructor 场景组件的类型或者字符串
+     * @returns
+     */
+    public isScene<T extends BaseScene>(classConstructor: __private._types_globals__Constructor<T> | __private._types_globals__AbstractedConstructor<T> | string): boolean {
+        if (typeof (classConstructor) == 'string') {
+            let scene = director.getScene()!.getChildByName('Canvas')!.getComponent(classConstructor);
+            if (scene) {
+                return true;
+            }
+        } else {
+            let scene = director.getScene()!.getChildByName('Canvas')!.getComponent(classConstructor);
+            if (scene && scene instanceof classConstructor) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 加载场景
      * @param path
      * @param onProgressCb
