@@ -38,7 +38,13 @@ export class Util {
         return comp;
     }
 
-
+    public static getOrAddComponentByName<T extends Component>(node: Node, name: string): T {
+        let comp = node.getComponent(name);
+        if (comp == null) {
+            comp = node.addComponent(name);
+        }
+        return comp as T;
+    }
 
     /**
      * 生成 `count` 个均匀分布的射线
