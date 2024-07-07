@@ -30,7 +30,7 @@ export class Util {
         return keys[0];
     }
 
-    public static getOrAddComponent<T extends Component>(node: Node, classConstructor: __private._types_globals__Constructor<T> | __private._types_globals__AbstractedConstructor<T>): T {
+    public static getOrAddComponent<T extends Component>(node: Node, classConstructor: __private.__types_globals__Constructor<T> | __private.__types_globals__AbstractedConstructor<T>): T {
         let comp = node.getComponent(classConstructor);
         if (comp == null) {
             comp = node.addComponent(classConstructor);
@@ -122,7 +122,7 @@ export class Util {
      * @returns
      */
     public static isPassProbability(probability: number, base = 100): boolean {
-        if (probability < 0) return false;
+        if (probability <= 0) return false;
         if (probability >= base) return true;
         return Math.random() * base < probability;
     }

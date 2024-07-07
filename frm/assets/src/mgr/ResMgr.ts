@@ -77,7 +77,7 @@ class ResMgr extends Singleton {
      * XXXScene 继承自 BaseScene，且挂载在 Canvas 下
      * @returns
      */
-    public getScene<T extends BaseScene>(classConstructor: __private._types_globals__Constructor<T> | __private._types_globals__AbstractedConstructor<T>): T {
+    public getScene<T extends BaseScene>(classConstructor: __private.__types_globals__Constructor<T> | __private.__types_globals__AbstractedConstructor<T>): T {
         return director.getScene()!.getChildByName('Canvas')!.getComponent(classConstructor)!;
     }
 
@@ -86,7 +86,7 @@ class ResMgr extends Singleton {
      * @param classConstructor 场景组件的类型或者字符串
      * @returns
      */
-    public isScene<T extends BaseScene>(classConstructor: __private._types_globals__Constructor<T> | __private._types_globals__AbstractedConstructor<T> | string): boolean {
+    public isScene<T extends BaseScene>(classConstructor: __private.__types_globals__Constructor<T> | __private.__types_globals__AbstractedConstructor<T> | string): boolean {
         if (typeof (classConstructor) == 'string') {
             let scene = director.getScene()!.getChildByName('Canvas')!.getComponent(classConstructor);
             if (scene) {
@@ -304,7 +304,7 @@ class ResMgr extends Singleton {
      * @param autorelease 切换场景时，是否自动删除
      * @returns
      */
-    private manualLoadAny<T extends Asset>(bundlename: string, path: string, type: __private._types_globals__Constructor<T>, onComplete?: (err: Error | null, asset: T | null) => void, autorelease = true) {
+    private manualLoadAny<T extends Asset>(bundlename: string, path: string, type: __private.__types_globals__Constructor<T>, onComplete?: (err: Error | null, asset: T | null) => void, autorelease = true) {
         const loadedAsset = this._loadedAssets.get(path);
         if (loadedAsset && isValid(loadedAsset.asset)) {
             return onComplete && onComplete(null, loadedAsset.asset as T);
