@@ -3,15 +3,15 @@ import { Singleton } from "./Singleton";
 
 class CfgMgr extends Singleton {
 
-    public getJson<T>(name: string): T {
+    public getJson<T = any>(name: string): T {
         return this._jsons[name] as T;
     }
 
-    public getJsonById<T>(name: string, id: number | string): T {
+    public getJsonById<T = any>(name: string, id: number | string): T {
         return this._jsons[name][id] as T;
     }
 
-    public getJsonByIds<T>(name: string, ids: number[] | string[]): T {
+    public getJsonByIds<T = any>(name: string, ids: number[] | string[]): T {
         let json = this.getJsonById(name, ids[0]);
         for (let i = 1; i < ids.length; i++) {
             json = (json as any)[ids[i]];
