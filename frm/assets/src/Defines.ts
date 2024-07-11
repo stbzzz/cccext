@@ -19,7 +19,7 @@ export namespace frm {
     /**
      * 列表包装类
      */
-    export class ListData<T> {
+    export class ListData<T = any> {
         constructor(index: number, data: T, extra?: any) {
             this._extra = extra;
             this._origin = data;
