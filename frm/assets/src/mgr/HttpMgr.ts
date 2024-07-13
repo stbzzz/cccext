@@ -215,6 +215,10 @@ class HttpMgr extends Singleton {
         return this._userData.get(key) || '';
     }
 
+    public setInterceptfunc(func: (data: any, post: any) => void) {
+        this._interceptfunc = func;
+    }
+
     public init(httpUrl: string) {
         this._url = httpUrl;
     }
@@ -277,10 +281,14 @@ class HttpMgr extends Singleton {
                 post && log('client:', post);
                 log('response:', data.ok ? data.data : { code: data.code, msg: data.msg });
 
-                // 成功返回，且注册回调
-                if (data.ok && data.post && data.post._cbname) {
-                    Data.processNetworkMsg('http', data.post._cbname, data.data, data.post);
-                    Gui.processNetworkMsg('http', data.post._cbname, data.data, data.post);
+                // 成功返回
+                if (data.ok) {
+                    this._interceptfunc && this._interceptfunc(data.data, data.post);
+                    // 已注册回调
+                    if (data.post && data.post._cbname) {
+                        Data.processNetworkMsg('http', data.post._cbname, data.data, data.post);
+                        Gui.processNetworkMsg('http', data.post._cbname, data.data, data.post);
+                    }
                 }
                 res(data);
                 this._requestCache.push(request);
@@ -305,6 +313,7 @@ class HttpMgr extends Singleton {
     private _autoretryCount = 0;
     private _retryfunc: frm.TRetryFunc | null = null;
     private _userData = new Map<string, string>();
+    private _interceptfunc: ((data: any, post: any) => void) | null = null;
 
 }
 export const Http = HttpMgr.getInstance() as HttpMgr;
