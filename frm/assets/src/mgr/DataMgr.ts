@@ -70,9 +70,22 @@ class DataMgr extends Singleton {
         }
     }
 
+    public calcTime(serverMillisecond: number) {
+        this._deltaMillisecond = (new Date).getTime() - serverMillisecond;
+    }
+
+    public getSecond(): number {
+        return Math.floor(this.getMillisecond() / 1000);
+    }
+
+    public getMillisecond(): number {
+        return (new Date).getTime() - this._deltaMillisecond;
+    }
+
     //private
     private _dataArr: any[] = [];
     private _dataMap = new Map<string, any>();
+    private _deltaMillisecond = 0;
 }
 
 export const Data = DataMgr.getInstance() as DataMgr;
