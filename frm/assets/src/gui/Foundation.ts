@@ -1,7 +1,8 @@
-import { Component, Node, Prefab, instantiate, isValid, log, tween, v3, warn } from "cc";
+import { Component, Node, Prefab, UIOpacity, instantiate, isValid, log, tween, v3, warn } from "cc";
 import { Dispatcher } from "../mgr/DispatcherMgr";
 import { Gui } from "../mgr/GuiMgr";
 import { Res } from "../mgr/ResMgr";
+import { Util } from "../util/Util";
 
 /**
  * 时钟回调函数类型
@@ -219,6 +220,14 @@ export class BaseWidget extends Foundation {
                 case -1: {
                     this.scheduleOnce(() => {
                         tween(this.node).to(0.2, { scale: v3(1.1, 1.1, 1) }).to(0.1, { scale: v3(1, 1, 1) }).start();
+                    });
+                    break;
+                }
+                case -2: {
+                    const op = Util.getOrAddComponent(this.node, UIOpacity);
+                    op.opacity = 0;
+                    this.scheduleOnce(() => {
+                        tween(op).to(0.2, { opacity: 255 }).start();
                     });
                     break;
                 }
