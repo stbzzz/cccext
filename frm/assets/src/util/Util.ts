@@ -232,7 +232,7 @@ export class Util {
      * @returns
      */
     public static formatNumber(n: number) {
-        if (n <= 0) return 0;
+        if (n <= 0) return '0';
         return n.toFixed(0).replace(/\d{1,3}(?=(\d{3})+(\.\d*)?$)/g, '$&,')
     }
 
