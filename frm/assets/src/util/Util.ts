@@ -12,6 +12,10 @@ interface IRay {
 }
 
 export class Util {
+    public static isOdd(n: number): boolean {
+        return n % 2 === 1 || n % 2 === -1;
+    }
+
     public static keyFromWeight(m: { [k: string]: number }): string {
         let keys: string[] = [];
         let weights: number[] = [];
