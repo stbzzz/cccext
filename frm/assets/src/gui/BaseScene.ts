@@ -27,6 +27,14 @@ export class BaseScene extends Foundation {
         return null;
     }
 
+    public removeUniqueView() {
+        if (this._uniqueViewData && isValid(this._uniqueViewData.view)) {
+            const view = this._uniqueViewData.view!;
+            view.node.destroy();
+            this._uniqueViewData = null;
+        }
+    }
+
     /**
      * 设置UniqueView
      * @param path
