@@ -27,7 +27,7 @@ class ResMgr extends Singleton {
      */
     public loadRemoteJson(url: string): Promise<Record<string, any> | null> {
         return new Promise((res, rej) => {
-            assetManager.loadRemote<JsonAsset>(url, (err, asset) => {
+            assetManager.loadRemote<JsonAsset>(url, { xhrTimeout: 2000 }, (err, asset) => {
                 if (err) {
                     error(err);
                     return res(null);
