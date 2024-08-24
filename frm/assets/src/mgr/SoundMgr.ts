@@ -5,6 +5,9 @@ import { Singleton } from "./Singleton";
 const MUSIC_VOLUME_KEY = 'BgmVolume';
 const EFFECT_VOLUME_KEY = 'EffectVolume';
 
+// milli secs
+const PLAY_EFFECT_INTERVAL = 1000;
+
 export class SoundMgr extends Singleton {
 
     public init(appNode: Node) {
@@ -48,6 +51,12 @@ export class SoundMgr extends Singleton {
     }
 
     public playEffect(path: string, autorelease = true) {
+        const curr = (new Date()).getTime();
+        const last = this._frequencyMap.get(path) || 0;
+        if (curr - last < PLAY_EFFECT_INTERVAL) {
+            return;
+        }
+        this._frequencyMap.set(path, curr);
         Res.loadAudio(path, (err, clip) => {
             if (err) {
                 error(err);
@@ -70,6 +79,8 @@ export class SoundMgr extends Singleton {
     private _effectVolume = 1;
     private _musicAudioSource: AudioSource = null!;
     private _effectAudioSource: AudioSource = null!;
+
+    private _frequencyMap = new Map<string, number>();
 }
 
 export const Sound = SoundMgr.getInstance() as SoundMgr;
