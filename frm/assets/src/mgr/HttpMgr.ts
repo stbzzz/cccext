@@ -276,7 +276,7 @@ class HttpMgr extends Singleton {
                 let duration = (new Date).getTime() - startStampMS;
                 let fmtStr = Util.fmtDate('HH:MM:SS', Math.floor(startStampMS / 1000)) + `.${startStampMS % 1000}`;
                 log('%c-------------------------------------', 'color:#2E8B57;');
-                log(`%c[HTTP ${method}] %c${path} %c${fmtStr}-${duration / 1000}`, 'color:#2E8B57;', 'color:#00FFFF;', 'color:#2E8B57');
+                log(`%c[HTTP ${method}] %c${path} %c${fmtStr}-${duration / 1000}`, 'color:#2E8B57;', 'color:#2E8B57;', 'color:#2E8B57');
                 param && log('param:', param);
                 post && log('client:', post);
                 log('response:', data.ok ? data.data : { code: data.code, msg: data.msg });
