@@ -419,6 +419,19 @@ class GuiMgr extends Singleton {
         this.checkLevel(false, forceShowType, forceHideType);
     }
 
+    public hideViewMask() {
+        if (isValid(this._viewMask)) {
+            this._viewMask!.active = false;
+        }
+    }
+
+
+    public showViewMask() {
+        if (isValid(this._viewMask)) {
+            this._viewMask!.active = true;
+        }
+    }
+
     private checkLevel(fromCreate: boolean, forceShowType?: number, forceHideType?: number) {
         let useDefaultShow = typeof forceShowType === 'undefined';
         let showType = !useDefaultShow ? forceShowType! : 0;
