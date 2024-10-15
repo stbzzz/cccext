@@ -101,12 +101,7 @@ class ResMgr extends Singleton {
         return false;
     }
 
-    /**
-     * 加载场景
-     * @param path
-     * @param onProgressCb
-     */
-    public loadScene(path: string, onProgressCb?: (progress: number) => void, onComplete?: () => void) {
+    public preloadScene(path: string, onProgressCb?: (progress: number) => void, onComplete?: (sceneName: string) => void) {
         const pathArr = path.split('/');
         const len = pathArr.length;
         if (len < 2) {
@@ -130,8 +125,9 @@ class ResMgr extends Singleton {
                             error(err);
                             return;
                         }
-                        onComplete && onComplete();
-                        director.loadScene(scenename);
+                        if (onComplete) {
+                            onComplete(scenename);
+                        }
                     });
                 } else {
                     bundle.preloadScene(scenename, err => {
@@ -139,13 +135,25 @@ class ResMgr extends Singleton {
                             error(err);
                             return;
                         }
-                        onComplete && onComplete();
-                        director.loadScene(scenename);
+                        if (onComplete) {
+                            onComplete(scenename);
+                        }
                     });
                 }
             }).catch(err => {
                 error(err);
             });
+    }
+
+    /**
+     * 加载场景
+     * @param path
+     * @param onProgressCb
+     */
+    public loadScene(path: string, onProgressCb?: (progress: number) => void) {
+        this.preloadScene(path, onProgressCb, sceneName => {
+            director.loadScene(sceneName);
+        });
     }
 
     /**
