@@ -79,8 +79,7 @@ export class Util {
      * @param count
      * @returns
      */
-    public static circleRays(spos: Vec3, count: number): IRay[] {
-        const distance = 100;
+    public static circleRays(spos: Vec3, count: number, distance = 100): IRay[] {
         let startAngle = 0;
         let perAngle = 360 / count;
         let results: IRay[] = [];
