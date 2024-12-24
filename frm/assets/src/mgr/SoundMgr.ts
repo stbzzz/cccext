@@ -8,6 +8,8 @@ const EFFECT_VOLUME_KEY = 'EffectVolume';
 // milli secs
 const PLAY_EFFECT_INTERVAL = 100;
 
+const MAX_SOUND_MULTIPLE = 0.833;
+
 export class SoundMgr extends Singleton {
 
     public init(appNode: Node) {
@@ -34,7 +36,7 @@ export class SoundMgr extends Singleton {
             }
             this._musicAudioSource.stop();
             this._musicAudioSource.clip = clip;
-            this._musicAudioSource.volume = this._musicVolume * multiple;
+            this._musicAudioSource.volume = this._musicVolume * multiple * MAX_SOUND_MULTIPLE;
             this._musicAudioSource.loop = true;
             this._musicAudioSource.play();
         }, false);
@@ -62,7 +64,7 @@ export class SoundMgr extends Singleton {
                 error(err);
                 return;
             }
-            this._effectAudioSource.playOneShot(clip!, this._effectVolume * multiple);
+            this._effectAudioSource.playOneShot(clip!, this._effectVolume * multiple * MAX_SOUND_MULTIPLE);
         }, false);
     }
 
