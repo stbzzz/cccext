@@ -6,7 +6,7 @@ const MUSIC_VOLUME_KEY = 'BgmVolume';
 const EFFECT_VOLUME_KEY = 'EffectVolume';
 
 // milli secs
-const PLAY_EFFECT_INTERVAL = 1000;
+const PLAY_EFFECT_INTERVAL = 100;
 
 export class SoundMgr extends Singleton {
 
@@ -26,7 +26,7 @@ export class SoundMgr extends Singleton {
         this._musicAudioSource.play();
     }
 
-    public playMusic(path: string, autorelease = false) {
+    public playMusic(path: string, multiple = 1) {
         Res.loadAudio(path, (err, clip) => {
             if (err) {
                 error(err);
@@ -34,10 +34,10 @@ export class SoundMgr extends Singleton {
             }
             this._musicAudioSource.stop();
             this._musicAudioSource.clip = clip;
-            this._musicAudioSource.volume = this._musicVolume;
+            this._musicAudioSource.volume = this._musicVolume * multiple;
             this._musicAudioSource.loop = true;
             this._musicAudioSource.play();
-        }, autorelease);
+        }, false);
     }
 
     public setMusicVolume(v: number) {
@@ -50,7 +50,7 @@ export class SoundMgr extends Singleton {
         return this._musicVolume;
     }
 
-    public playEffect(path: string, autorelease = true) {
+    public playEffect(path: string, multiple = 1) {
         const curr = (new Date()).getTime();
         const last = this._frequencyMap.get(path) || 0;
         if (curr - last < PLAY_EFFECT_INTERVAL) {
@@ -62,8 +62,8 @@ export class SoundMgr extends Singleton {
                 error(err);
                 return;
             }
-            this._effectAudioSource.playOneShot(clip!, this._effectVolume);
-        }, autorelease);
+            this._effectAudioSource.playOneShot(clip!, this._effectVolume * multiple);
+        }, false);
     }
 
     public setEffectVolume(v: number) {
