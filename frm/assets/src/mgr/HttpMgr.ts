@@ -1,9 +1,9 @@
-import { log, sys } from "cc";
-import { frm } from "../Defines";
-import { Util } from "../util/Util";
-import { Data } from "./DataMgr";
-import { Gui } from "./GuiMgr";
-import { Singleton } from "./Singleton";
+import { log, sys } from 'cc';
+import { frm } from '../Defines';
+import { Util } from '../util/Util';
+import { Data } from './DataMgr';
+import { Gui } from './GuiMgr';
+import { Singleton } from './Singleton';
 
 const Key_StorageGameToken = 'Key_StorageGameToken';
 
@@ -28,12 +28,13 @@ class Request {
     private _retryfunc: null | frm.TRetryFunc = null;
     private _ignoreRetryFunc = false;
     private _responseCallback: null | ((data: frm.RecvDataEntity) => void) = null;
-    private _timeout!: number;//毫秒
+    private _timeout!: number; //毫秒
     private _autoretry!: number;
     private _isResponse: boolean = false;
     private _isRequesting: boolean = false;
     private _needauth: boolean = true;
     private _needmask: boolean = true;
+    private _contentType: string = 'application/x-www-form-urlencoded';
 
     private _entity!: frm.RecvDataEntity;
 
@@ -42,7 +43,9 @@ class Request {
         this.reset(path, param, post);
     }
 
-    public get uid(): number { return this._uid; }
+    public get uid(): number {
+        return this._uid;
+    }
 
     public reset(path: string, param?: any, post?: frm.IPostData) {
         this._path = path;
@@ -53,6 +56,7 @@ class Request {
         this._method = post._method || 'POST';
         this._timeout = post._timeout || Http.getTimeout();
         this._autoretry = post._autoretry || Http.getAutoretryCount();
+        this._contentType = post.contentType ? post.contentType : 'application/x-www-form-urlencoded';
         if (post.hasOwnProperty('_needauth')) {
             this._needauth = post._needauth!;
         } else {
@@ -100,8 +104,11 @@ class Request {
         this._autoretry--;
 
         let xhr = new XMLHttpRequest(),
-            isTimeout = false, timeout = this._timeout ? this._timeout : 3000,
-            path = this._path, param = this._param, method = this._method;
+            isTimeout = false,
+            timeout = this._timeout ? this._timeout : 3000,
+            path = this._path,
+            param = this._param,
+            method = this._method;
 
         // 超时
         let timer = setTimeout(() => {
@@ -127,10 +134,9 @@ class Request {
                     this._setResponse(frm.InnerCode.PARSE_JSON_ERR, 'JSON解析错误');
                 }
                 if (res) {
-                    this._setResponse(res.code, res.msg || "", res.data);
+                    this._setResponse(res.code, res.msg || '', res.data);
                 }
-            }
-            else {
+            } else {
                 this._setResponse(frm.InnerCode.STATUS_CODE_ERR, `状态码错误:${xhr.status}`);
             }
         };
@@ -148,12 +154,15 @@ class Request {
             xhr.open('GET', url, true);
             this._needauth && xhr.setRequestHeader('Authorization', Http.getGameToken());
             xhr.send();
-        }
-        else if (method === 'POST') {
+        } else if (method === 'POST') {
             xhr.open('POST', url, true);
             this._needauth && xhr.setRequestHeader('Authorization', Http.getGameToken());
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.send(buildQuery(param))
+            xhr.setRequestHeader('Content-Type', this._contentType);
+            if (this._contentType === 'application/x-www-form-urlencoded') {
+                xhr.send(buildQuery(param));
+            } else {
+                xhr.send(param);
+            }
         }
     }
 
@@ -187,16 +196,20 @@ class Request {
             this._entity.code = code;
             this._entity.data = data;
             this._responseCallback && this._responseCallback(this._entity);
-        }
+        };
 
         // 重试
         if (!success && this._retryfunc) {
-            this._retryfunc(code, () => {
-                res(code, msg, data);
-                Gui.toast(msg);
-            }, () => {
-                this._retry();
-            });
+            this._retryfunc(
+                code,
+                () => {
+                    res(code, msg, data);
+                    Gui.toast(msg);
+                },
+                () => {
+                    this._retry();
+                }
+            );
             return;
         }
         if (!success) Gui.toast(msg);
@@ -206,7 +219,6 @@ class Request {
 }
 
 class HttpMgr extends Singleton {
-
     public setUserData(key: string, val: string) {
         this._userData.set(key, val);
     }
@@ -266,14 +278,14 @@ class HttpMgr extends Singleton {
      */
     public req<T = any>(path: string, param?: any, post?: frm.IPostData): Promise<frm.RecvDataEntity<T>> {
         return new Promise((res, _) => {
-            let request = this.getRequest(path, param, post);
-            let startStampMS = (new Date).getTime();
+            let request = this.getRequest(this._url + '/' + path, param, post);
+            let startStampMS = new Date().getTime();
 
             let method = 'POST';
             if (post && post._method) method = post._method;
 
-            request.setResponseCallback(data => {
-                let duration = (new Date).getTime() - startStampMS;
+            request.setResponseCallback((data) => {
+                let duration = new Date().getTime() - startStampMS;
                 let fmtStr = Util.fmtDate('HH:MM:SS', Math.floor(startStampMS / 1000)) + `.${startStampMS % 1000}`;
                 log('%c-------------------------------------', 'color:#2E8B57;');
                 log(`%c[HTTP ${method}] %c${path} %c${fmtStr}-${duration / 1000}`, 'color:#2E8B57;', 'color:#2E8B57;', 'color:#2E8B57');
@@ -297,23 +309,22 @@ class HttpMgr extends Singleton {
         });
     }
     ////
-    private getRequest(path: string, param?: any, post?: frm.IPostData): Request {
+    public getRequest(path: string, param?: any, post?: frm.IPostData): Request {
         if (this._requestCache.length > 0) {
             let request = this._requestCache.shift()!;
-            request.reset(this._url + '/' + path, param, post);
+            request.reset(path, param, post);
             return request;
         }
-        return new Request(this._url + '/' + path, param, post);
+        return new Request(path, param, post);
     }
     //private
-    private _url: string = "";
-    private _gameToken: string = "";
+    private _url: string = '';
+    private _gameToken: string = '';
     private _requestCache: Request[] = [];
     private _timeout = 3000;
     private _autoretryCount = 0;
     private _retryfunc: frm.TRetryFunc | null = null;
     private _userData = new Map<string, string>();
     private _interceptfunc: ((data: any, post: any) => void) | null = null;
-
 }
 export const Http = HttpMgr.getInstance() as HttpMgr;
