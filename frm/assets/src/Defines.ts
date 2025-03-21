@@ -149,6 +149,8 @@ export namespace frm {
         /**重试处理函数 */
         _retryfunc?: TRetryFunc;
         _ignoreRetryFunc?: boolean;
+        _baseUrl?: string;
+        _contentType?: string;
         /**其他需要回传字段 */
         [k: string]: any;
     }

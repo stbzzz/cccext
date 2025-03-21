@@ -56,7 +56,7 @@ class Request {
         this._method = post._method || 'POST';
         this._timeout = post._timeout || Http.getTimeout();
         this._autoretry = post._autoretry || Http.getAutoretryCount();
-        this._contentType = post.contentType ? post.contentType : 'application/x-www-form-urlencoded';
+        this._contentType = post._contentType ? post._contentType : 'application/x-www-form-urlencoded';
         if (post.hasOwnProperty('_needauth')) {
             this._needauth = post._needauth!;
         } else {
@@ -278,7 +278,13 @@ class HttpMgr extends Singleton {
      */
     public req<T = any>(path: string, param?: any, post?: frm.IPostData): Promise<frm.RecvDataEntity<T>> {
         return new Promise((res, _) => {
-            let request = this.getRequest(this._url + '/' + path, param, post);
+            let request;
+            if (post?._baseUrl) {
+                request = this.getRequest(post?._baseUrl + '/' + path, param, post);
+            } else {
+                request = this.getRequest(this._url + '/' + path, param, post);
+            }
+
             let startStampMS = new Date().getTime();
 
             let method = 'POST';
@@ -309,7 +315,7 @@ class HttpMgr extends Singleton {
         });
     }
     ////
-    public getRequest(path: string, param?: any, post?: frm.IPostData): Request {
+    private getRequest(path: string, param?: any, post?: frm.IPostData): Request {
         if (this._requestCache.length > 0) {
             let request = this._requestCache.shift()!;
             request.reset(path, param, post);
